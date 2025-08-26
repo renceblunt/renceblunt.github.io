@@ -1,0 +1,238 @@
+/* Layout */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #222;
+  color: #fff;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 10px;
+  margin: 5px 0;
+  color: #ddd;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background: #444;
+  color: #fff;
+}
+
+/* Main content */
+.content {
+  flex: 1;
+  padding: 30px;
+  background: #f4f4f4;
+}
+
+.content h1 {
+  margin-bottom: 20px;
+}
+
+/* Form styling */
+.form-section {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.form-section.hidden {
+  display: none;
+}
+
+.form-section h2 {
+  margin-bottom: 15px;
+}
+
+form label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: bold;
+}
+
+form input,
+form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+form button {
+  background: #222;
+  color: #fff;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background: #444;
+}
+
+.form-message {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* Footer */
+.site-footer {
+  background: #222;
+  color: #ccc;
+  padding: 20px 15px;
+  text-align: center;
+  margin-top: 50px;
+}
+
+.footer-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.site-footer p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.footer-links {
+  margin-top: 10px;
+}
+
+.footer-links a {
+  margin: 0 10px;
+  color: #ccc;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: #fff;
+}
+
+
+/* Tables in admin panel */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+table th, table td {
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+table th {
+  background: #222;
+  color: #fff;
+}
+
+table td {
+  background: #fff;
+}
+
+button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button.delete-btn {
+  background: #c0392b;
+  color: #fff;
+}
+
+button.delete-btn:hover {
+  background: #e74c3c;
+}
+
+button.edit-btn {
+  background: #2980b9;
+  color: #fff;
+}
+
+button.edit-btn:hover {
+  background: #3498db;
+}
+
+form input {
+  padding: 8px;
+  margin-right: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Sidebar layout */
+.sidebar {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 20px; /* space between primary and secondary containers */
+}
+
+/* Primary sidebar */
+.primary-sidebar {
+  background: #222;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.primary-sidebar h2 {
+  margin-bottom: 10px;
+}
+
+.primary-sidebar nav a {
+  display: block;
+  padding: 8px;
+  margin: 5px 0;
+  color: #ddd;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.primary-sidebar nav a:hover,
+.primary-sidebar nav a.active {
+  background: #444;
+  color: #fff;
+}
+
+/* Secondary sidebar container */
+.secondary-sidebar-container {
+  background: #222;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.secondary-sidebar nav a {
+  display: block;
+  padding: 8px;
+  margin: 5px 0;
+  color: #ddd;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.secondary-sidebar nav a:hover {
+  background: #444;
+  color: #fff;
+}

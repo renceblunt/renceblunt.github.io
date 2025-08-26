@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - Rence Blunt</title>
+  <link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- Primary Sidebar -->
+      <div class="primary-sidebar">
+        <h2>Admin</h2>
+        <nav>
+          <a href="#" class="active" data-section="poemForm">Add Poem</a>
+          <a href="#" data-section="quoteForm">Add Quote</a>
+          <a href="#" data-section="recentPoemForm">Add Recent Poem</a>
+        </nav>
+      </div>
+
+      <!-- Secondary Sidebar -->
+      <div class="secondary-sidebar-container">
+        <div class="secondary-sidebar">
+          <nav>
+            <a href="admin-panel.html" target="_blank">Settings / Manage Panel</a>
+            <a href="#">Other Link 1</a>
+            <a href="#">Other Link 2</a>
+          </nav>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="content">
+      <h1>Dashboard</h1>
+      
+      <!-- Add Poem Form -->
+      <section id="poemForm" class="form-section">
+        <h2>Add New Poem</h2>
+        <form id="poemSubmitForm">
+          <label>Title:</label>
+          <input type="text" placeholder="Poem title" required />
+
+          <label>Content:</label>
+          <textarea rows="6" placeholder="Poem content..." required></textarea>
+
+          <label>Author:</label>
+          <input type="text" placeholder="Author name" /> <!-- optional -->
+
+          <button type="submit">Submit Poem</button>
+          <p class="form-message"></p>
+        </form>
+      </section>
+
+      <!-- Add Quote Form -->
+      <section id="quoteForm" class="form-section hidden">
+        <h2>Add New Quote</h2>
+        <form id="quoteSubmitForm">
+          <label>Quote:</label>
+          <textarea rows="4" placeholder="Enter quote..." required></textarea>
+
+          <label>Author:</label>
+          <input type="text" placeholder="Author name" /> <!-- optional -->
+
+          <button type="submit">Submit Quote</button>
+          <p class="form-message"></p>
+        </form>
+      </section>
+
+      <!-- Add Recent Poem Form -->
+      <section id="recentPoemForm" class="form-section hidden">
+        <h2>Add Recent Poem</h2>
+        <form id="recentPoemSubmitForm">
+          <label>Title:</label>
+          <input type="text" placeholder="Recent poem title" required />
+
+          <label>Excerpt:</label>
+          <textarea rows="4" placeholder="Short excerpt of poem..." required></textarea>
+
+          <label>Full Content:</label>
+          <textarea rows="6" placeholder="Full poem content..." required></textarea>
+
+          <label>Author:</label>
+          <input type="text" placeholder="Author name" /> <!-- optional -->
+
+          <button type="submit">Submit Recent Poem</button>
+          <p class="form-message"></p>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <p>&copy; 2025 Rence Blunt. All rights reserved.</p>
+      <nav class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="poems.html">Poems</a>
+        <a href="quotes.html">Quotes</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

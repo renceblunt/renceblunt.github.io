@@ -3,119 +3,71 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rence Blunt: Silent Depth</title>
-  <meta name="description" content="Silent Depth – A poetry collection by Rence Blunt. Reflections on life, love, and the unseen depths of the human spirit.">
-  <meta name="google-site-verification" content="soceiczGrFx4It0-P5sYiqRyMMycbq-GsCQ3yOh84hY" />
-  <style>
-    body {
-      font-family: Georgia, serif;
-      margin: 0;
-      padding: 0;
-      background: #f9f9f9;
-      color: #222;
-      line-height: 1.7;
-    }
-    header {
-      background: #111;
-      color: #f9f9f9;
-      text-align: center;
-      padding: 3rem 1rem;
-    }
-    header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-    }
-    header p {
-      font-size: 1.2rem;
-      font-style: italic;
-    }
-    main {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    section {
-      margin-bottom: 3rem;
-    }
-    h2 {
-      border-bottom: 2px solid #ddd;
-      padding-bottom: 0.5rem;
-    }
-    .poem {
-      margin: 1.5rem 0;
-      padding: 1rem;
-      background: #fff;
-      border-left: 4px solid #333;
-    }
-    footer {
-      text-align: center;
-      padding: 2rem;
-      font-size: 0.9rem;
-      background: #111;
-      color: #aaa;
-    }
-    a {
-      color: #333;
-    }
-  </style>
+  <title>Rence Blunt | Home</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Rence Blunt: Silent Depth</h1>
-    <p>A collection of poems from the soul’s quiet waters</p>
-  </header>
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="logo">Rence Blunt</div>
+  <div class="menu-toggle" id="menu-toggle">☰</div>
+  <div class="nav-links" id="nav-links">
+    <a href="index.html" class="active">Home</a>
+    <a href="poems.html">Poems</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
 
-  <main>
-    <section id="about">
-      <h2>About</h2>
-      <p>
-        Welcome to <strong>Silent Depth</strong> — the official poetry site of <em>Rence Blunt</em>.  
-        Here, words dive into stillness, uncovering reflections on love, life, and the unseen depths of the human spirit.
-      </p>
-    </section>
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Welcome to My Words</h1>
+    <p>I might be quiet, but I'm full of words.</p>
+  </section>
+<!-- Weekly Highlights -->
+<!-- Weekly Highlights -->
+<section class="weekly-container">
+  <!-- Quote -->
+  <div class="weekly-card">
+    <h2>Quote of the Week</h2>
+    <p id="weekly-quote"><em>Loading quote...</em></p>
+    <span id="quote-author" class="author"></span>
+  </div>
 
-    <section id="poems">
-      <h2>Poems</h2>
+  <!-- Poem -->
+  <div class="weekly-card">
+    <h2>Poetry of the Week</h2>
+    <p id="weekly-poem"><em>Loading poem...</em></p>
+    <span id="poem-author" class="author"></span>
+  </div>
+</section>
 
-      <div class="poem">
-        <h3>Silent Nights</h3>
-        <p>
-          The night whispers,<br>
-          a language only silence knows.<br>
-          In its stillness,<br>
-          I find myself.
-        </p>
-      </div>
+<!-- Recent Poems Container (below weekly highlights) -->
+<!-- Recent Poems Section -->
+<section class="recent-poems-section">
+  <h2>Recent Poems</h2>
+  <div id="recent-poems-container" class="recent-poems-container">
+    <p>Loading recent poems...</p>
+  </div>
+</section>
 
-      <div class="poem">
-        <h3>Roots</h3>
-        <p>
-          I come from soil,<br>
-          yet I rise like smoke—<br>
-          untethered,<br>
-          searching for skies.
-        </p>
-      </div>
 
-      <!-- Add more poems here -->
-    </section>
+<script type="module" src="script.js"></script>
 
-    <section id="contact">
-      <h2>Contact</h2>
-      <p>
-        For collaborations or inquiries, reach me at:  
-        <a href="mailto:renceblunt@example.com">renceblunt@example.com</a>
-      </p>
-    </section>
-  </main>
+<footer class="site-footer">
+  <div class="footer-container">
+    <p>&copy; 2025 Rence Blunt. All rights reserved.</p>
+    <nav class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="poems.html">Poems</a>
+      <a href="quotes.html">Quotes</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</footer>
 
-  <footer>
-    &copy; <span id="year"></span> Rence Blunt · Silent Depth
-  </footer>
 
-  <script>
-    // auto update copyright year
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
