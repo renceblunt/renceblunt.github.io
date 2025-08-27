@@ -3,47 +3,307 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Poems | Rence Blunt</title>
+  <title>Poems | Rence Blunt Poetry</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .load-more-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background: #333;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .load-more-btn:hover {
+      background: #555;
+    }
+    .offline-notice {
+      background: #ffcc00;
+      color: #000;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.9em;
+    }
+  </style>
 </head>
 <body>
-<!-- Navbar -->
-<nav class="navbar">
-  <div class="logo">Rence Blunt</div>
-  <div class="menu-toggle" id="menu-toggle">☰</div>
-  <div class="nav-links" id="nav-links">
-    <a href="index.html">Home</a>
-        <a href="poems.html" class="active">Poems</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-  </div>
-</nav>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">Rence Blunt</div>
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html">Home</a>
+      <a href="poems.html" class="active">Poems</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
 
- <!-- Hero -->
-  <section class="hero">
-    <h1>Poems</h1>
-    <p>A collection of my words, thoughts, and emotions.</p>
-  </section>
+  <section class="recent-poems-section" style="position: relative;">
+    <div class="poem-header">
+      <!-- Sort (left) -->
+      <div class="poem-sort">
+        <select id="sort-poems">
+          <option value="az">Sort: A → Z</option>
+          <option value="za">Sort: Z → A</option>
+        </select>
+      </div>
 
-  <!-- Poems Section -->
-  <section class="poems-container" id="poems-container">
-    <!-- Poems will be injected here by script.js -->
+      <!-- Title (center) -->
+      <h2 class="poem-title">All Poems</h2>
+
+      <!-- Search (right) -->
+      <div class="poem-search">
+        <input type="text" id="recent-poems-search" placeholder="Search..." />
+      </div>
+    </div>
+
+    <p class="poem-subtitle">
+      Discover a growing collection of verses — arranged alphabetically so you can wander through words with ease.
+    </p>
+
+    <div id="recent-poems-container" class="recent-poems-container">
+      <p>Loading recent poems...</p>
+    </div>
+
+    <!-- Load More button -->
+    <button id="load-more-btn" class="load-more-btn" style="display:none;">Load More</button>
+
+    <p id="last-synced" style="text-align:center; font-size:0.9em; color:gray;"></p>
   </section>
 
   <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-container">
       <p>&copy; 2025 Rence Blunt. All rights reserved.</p>
-      <nav class="footer-links">
-        <a href="index.html">Home</a>
-        <a href="poems.html">Poems</a>
-        <a href="quotes.html">Quotes</a>
-        <a href="about.html">About</a>
-        <a href="contact.html">Contact</a>
-      </nav>
     </div>
   </footer>
+
+  <!-- Firebase + Offline Sync -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { 
+      getFirestore, collection, onSnapshot, enableIndexedDbPersistence 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.appspot.com",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543"
+    };
+
+    // Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Enable offline persistence
+    enableIndexedDbPersistence(db).catch(err => {
+      console.warn("Persistence error:", err.code);
+    });
+
+    let allPoems = [];       // keep all poems
+    let poemsShown = 0;      // how many poems are displayed each time
+    const poemsPerPage = 10; // show 10 at a time
+
+    // Helper: truncate poem after N lines
+    function truncatePoem(text, lines = 10) {
+      const allLines = text.split(/\r?\n/);
+      if (allLines.length <= lines) {
+        return { preview: text, full: text, truncated: false };
+      }
+      return {
+        preview: allLines.slice(0, lines).join("\n"),
+        full: text,
+        truncated: true
+      };
+    }
+
+    // Render next batch of poems
+    function renderMorePoems() {
+      const container = document.getElementById("recent-poems-container");
+      const nextBatch = allPoems.slice(poemsShown, poemsShown + poemsPerPage);
+
+      nextBatch.forEach(poem => {
+        const truncated = truncatePoem(poem.content, 10);
+
+        const card = document.createElement("div");
+        card.className = "recent-poem-card";
+        card.innerHTML = `
+          <h3>${poem.title}</h3>
+          <p class="poem-content">${truncated.preview.replace(/\n/g, "<br>")}</p>
+          ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
+          ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
+        `;
+        container.appendChild(card);
+
+        if (truncated.truncated) {
+          const btn = card.querySelector(".read-more-btn");
+          const p = card.querySelector(".poem-content");
+          btn.addEventListener("click", () => {
+            if (btn.textContent === "Read More") {
+              p.innerHTML = truncated.full.replace(/\n/g, "<br>");
+              btn.textContent = "Show Less";
+            } else {
+              p.innerHTML = truncated.preview.replace(/\n/g, "<br>");
+              btn.textContent = "Read More";
+            }
+          });
+        }
+      });
+
+      poemsShown += nextBatch.length;
+
+      // Show/hide Load More button
+      document.getElementById("load-more-btn").style.display =
+        poemsShown < allPoems.length ? "block" : "none";
+    }
+
+    // Render all poems (with reset)
+    function renderPoems(docs) {
+      const container = document.getElementById("recent-poems-container");
+      container.innerHTML = "";
+
+      // Extract poems
+      allPoems = docs.map(doc => doc.data());
+
+      // Sort default A–Z
+      allPoems.sort((a, b) => a.title.localeCompare(b.title));
+
+      // Reset counter
+      poemsShown = 0;
+
+      // Render first batch
+      renderMorePoems();
+
+      document.getElementById("last-synced").textContent =
+        "Last synced: " + new Date().toLocaleString();
+    }
+
+    // Sort poems manually
+    function sortPoems(order = "az") {
+      if (order === "az") {
+        allPoems.sort((a, b) => a.title.localeCompare(b.title));
+      } else {
+        allPoems.sort((a, b) => b.title.localeCompare(a.title));
+      }
+
+      poemsShown = 0;
+      document.getElementById("recent-poems-container").innerHTML = "";
+      renderMorePoems();
+    }
+
+    // Setup sort dropdown
+    function setupSortDropdown() {
+      const sortSelect = document.getElementById("sort-poems");
+      sortSelect.addEventListener("change", (e) => sortPoems(e.target.value));
+    }
+
+    // Search
+    function setupSearch() {
+      const searchInput = document.getElementById("recent-poems-search");
+      const container = document.getElementById("recent-poems-container");
+
+      searchInput.addEventListener("input", (e) => {
+        const query = e.target.value.toLowerCase();
+        container.innerHTML = "";
+        poemsShown = 0;
+
+        const filtered = allPoems.filter(poem => {
+          const title = poem.title.toLowerCase();
+          const content = poem.content.toLowerCase();
+          return title.includes(query) || content.includes(query);
+        });
+
+        // Render filtered 10-by-10
+        function renderFilteredBatch() {
+          const nextBatch = filtered.slice(poemsShown, poemsShown + poemsPerPage);
+          nextBatch.forEach(poem => {
+            const truncated = truncatePoem(poem.content, 10);
+
+            const card = document.createElement("div");
+            card.className = "recent-poem-card";
+            card.innerHTML = `
+              <h3>${poem.title}</h3>
+              <p class="poem-content">${truncated.preview.replace(/\n/g, "<br>")}</p>
+              ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
+              ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
+            `;
+            container.appendChild(card);
+          });
+
+          poemsShown += nextBatch.length;
+          document.getElementById("load-more-btn").style.display =
+            poemsShown < filtered.length ? "block" : "none";
+        }
+
+        renderFilteredBatch();
+
+        // Replace Load More behavior when searching
+        const loadBtn = document.getElementById("load-more-btn");
+        loadBtn.onclick = renderFilteredBatch;
+      });
+    }
+
+    // Offline/online notice
+    function setupOfflineNotice() {
+      window.addEventListener("offline", () => {
+        const notice = document.createElement("div");
+        notice.textContent = "⚠ You are offline. Showing cached poems.";
+        notice.className = "offline-notice";
+        document.body.prepend(notice);
+      });
+      window.addEventListener("online", () => {
+        document.querySelectorAll(".offline-notice").forEach(el => el.remove());
+      });
+    }
+
+    // Init
+    document.addEventListener("DOMContentLoaded", () => {
+      const colRef = collection(db, "recentPoems");
+
+      // Live sync + offline cache
+      onSnapshot(colRef, (snapshot) => {
+        renderPoems(snapshot.docs);
+      });
+
+      setupSortDropdown();
+      setupSearch();
+      setupOfflineNotice();
+
+      // Load More button
+      document.getElementById("load-more-btn").addEventListener("click", renderMorePoems);
+    });
+  </script>
+  <Script>// Navbar toggle (for mobile menu)
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("menu-toggle");
+  const navLinks = document.getElementById("nav-links");
+
+  if (toggle && navLinks) {
+    toggle.addEventListener("click", () => {
+      navLinks.classList.toggle("show");
+    });
+  }
+
+  // Close menu on link click (mobile)
+  if (navLinks) {
+    const links = navLinks.querySelectorAll("a");
+    links.forEach(link => {
+      link.addEventListener("click", () => {
+        navLinks.classList.remove("show");
+      });
+    });
+  }
+});
+</Script>
+
+   <script src="script.js"></script>
 <script type="module" src="script.js"></script>
-  <script src="script.js"></script>
 </body>
 </html>

@@ -3,16 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Dashboard - Rence Blunt</title>
+  <title>Admin Dashboard - Rence Blunt Poetry</title>
   <link rel="stylesheet" href="admin.css"/>
 </head>
 <body>
+  <!-- Navbar -->
+<nav class="navbar">
+  <div class="logo">Rence Blunt Poetry</div>
+  <div class="menu-toggle" id="menu-toggle">☰</div>
+  <div class="nav-links" id="nav-links">
+          <a href="admin.html" class="active">1st Admin Panel</a>
+          <a href="admin-panel.html">2nd Admin Panel</a>
+       <a href="manage.html">Manage Poems</a>
+           <a href="index.html">Home</a>
+  </div>
+</nav>
   <div class="admin-layout">
     <!-- Sidebar -->
     <aside class="sidebar">
       <!-- Primary Sidebar -->
       <div class="primary-sidebar">
-        <h2>Admin</h2>
+        <h2>Add Verses</h2>
         <nav>
           <a href="#" class="active" data-section="poemForm">Add Poem</a>
           <a href="#" data-section="quoteForm">Add Quote</a>
@@ -20,21 +31,12 @@
         </nav>
       </div>
 
-      <!-- Secondary Sidebar -->
-      <div class="secondary-sidebar-container">
-        <div class="secondary-sidebar">
-          <nav>
-            <a href="admin-panel.html" target="_blank">Settings / Manage Panel</a>
-            <a href="#">Other Link 1</a>
-            <a href="#">Other Link 2</a>
-          </nav>
-        </div>
-      </div>
+    
     </aside>
 
     <!-- Main content -->
     <main class="content">
-      <h1>Dashboard</h1>
+      <h1>1st Admin Panel</h1>
       
       <!-- Add Poem Form -->
       <section id="poemForm" class="form-section">

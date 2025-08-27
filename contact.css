@@ -1,0 +1,51 @@
+
+.contact-box {
+  background: #fff;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.contact-form label {
+  font-weight: bold;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.contact-form button {
+  background-color: #1c1c1c;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.contact-form button:hover {
+  background-color: #333;
+}
+
+.direct-email {
+  margin-top: 30px;
+  font-size: 1rem;
+}
+
+
+html {
+  scroll-behavior: smooth;
+}

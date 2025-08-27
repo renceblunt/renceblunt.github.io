@@ -3,16 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel - Rence Blunt</title>
+  <title>Admin Panel - Rence Blunt Poetry</title>
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">Rence Blunt Poetry</div>
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+    <div class="nav-links" id="nav-links">
+          <a href="manage.html" data-section="manageContent">Manage Verses</a>
+      <a href="poems.html">Poems</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="admin.html">1st Admin Panel</a>
+      <a href="admin-panel.html" class="active">2nd Admin Panel</a>
+      <a href="index.html">Home</a>
+    </div>
+  </nav>
+
   <div class="admin-layout">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <h2>Admin Panel</h2>
+  
       <nav>
-        <a href="#" class="active" data-section="manageContent">Manage Content</a>
+        <a href="#" data-section="manageMessages" class="active">Messages</a>
         <a href="#" data-section="manageAdmins">Manage Admins</a>
         <a href="#" data-section="manageUsers">Manage Users</a>
         <a href="#" data-section="settings">Settings</a>
@@ -21,15 +36,21 @@
 
     <!-- Main content -->
     <main class="content">
-      <h1>Admin Dashboard</h1>
+      <h1>2nd Admin Panel</h1>
+
+      <!-- Messages Section -->
+      <section id="manageMessages" class="form-section">
+        <h2>Messages</h2>
+        <div id="messagesList" class="messages-list">
+          <p>Loading messages...</p>
+        </div>
+      </section>
 
       <!-- Manage Content Section -->
-      <section id="manageContent" class="form-section">
+      <section id="manageContent" class="form-section hidden">
         <h2>Content</h2>
         <p>Use the previous manage.html tables for poems, quotes, and recent poems here.</p>
-        <div id="contentTables">
-          <!-- You can copy the table structure from previous manage.html here -->
-        </div>
+        <div id="contentTables"></div>
       </section>
 
       <!-- Manage Admins Section -->

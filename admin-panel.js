@@ -1,5 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { 
+  getFirestore, collection, getDocs, addDoc, deleteDoc, doc, enableIndexedDbPersistence, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -11,9 +13,14 @@ const firebaseConfig = {
   appId: "1:78008755450:web:3fd0f0f298a08820935543"
 };
 
-// Initialize
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// Enable offline persistence
+enableIndexedDbPersistence(db).catch((err) => {
+  console.warn("Offline persistence error:", err.code);
+});
 
 // Sidebar navigation
 const links = document.querySelectorAll(".sidebar nav a");
@@ -83,6 +90,73 @@ const loadUsers = async () => {
   });
 };
 
+// --- Messages Management ---
+const messagesSection = document.createElement("section");
+messagesSection.id = "manageMessages";
+messagesSection.classList.add("form-section", "hidden");
+messagesSection.innerHTML = `
+  <h2>Messages</h2>
+  <table id="messagesTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Message</th>
+        <th>Time (GMT)</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+`;
+document.querySelector("main").appendChild(messagesSection);
+
+const messagesTable = messagesSection.querySelector("tbody");
+
+const loadMessages = async () => {
+  messagesTable.innerHTML = "";
+  const snapshot = await getDocs(collection(db, "messages"));
+  snapshot.forEach(docItem => {
+    const { name, email, message, timestamp } = docItem.data();
+    let timeStr = "N/A";
+    if (timestamp && timestamp.toDate) {
+      timeStr = timestamp.toDate().toUTCString(); // Convert to GMT
+    }
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${name}</td>
+      <td>${email}</td>
+      <td>${message}</td>
+      <td>${timeStr}</td>
+      <td><button class="delete-btn">Delete</button></td>
+    `;
+    tr.querySelector(".delete-btn").addEventListener("click", async () => {
+      if(confirm("Delete this message?")) {
+        await deleteDoc(doc(db, "messages", docItem.id));
+        tr.remove();
+      }
+    });
+    messagesTable.appendChild(tr);
+  });
+};
+
+// Add "Messages" link in sidebar
+const msgLink = document.createElement("a");
+msgLink.href = "#";
+msgLink.dataset.section = "manageMessages";
+msgLink.textContent = "Messages";
+document.querySelector(".sidebar nav").prepend(msgLink);
+
+msgLink.addEventListener("click", e => {
+  e.preventDefault();
+  links.forEach(l => l.classList.remove("active"));
+  msgLink.classList.add("active");
+  sections.forEach(sec => sec.classList.add("hidden"));
+  messagesSection.classList.remove("hidden");
+  loadMessages();
+});
+
 // Initial load
 loadAdmins();
 loadUsers();
+loadMessages();

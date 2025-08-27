@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact | Rence Blunt</title>
+  <title>Contact | Rence Blunt Poetry</title>
  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="contact.css">
 </head>
 <body>
 <!-- Navbar -->
 <nav class="navbar">
-  <div class="logo">Rence Blunt</div>
+  <div class="logo">Rence Blunt Poetry</div>
   <div class="menu-toggle" id="menu-toggle">☰</div>
   <div class="nav-links" id="nav-links">
     <a href="index.html">Home</a>
@@ -22,14 +23,43 @@
   <!-- Hero -->
   <!-- Hero -->
   <section class="hero">
-    <h1>Contact</h1>
-    <p>Let’s connect and share thoughts.</p>
+    <h1>Contact Rence Blunt</h1>
+    <p>Do you want us to collabolate? Do you want me to write poetry or lyrics for you?</p>  
+    <p>Do you have any issue with any piece I've written or credited and shared on this platform?
+    Or you just have something on board?</p>
+    <p>Then let’s connect and share these thoughts. I'd love to hear from you.</p>
   </section>
+ <main class="intro-section">
+    <section class="contact-box">
+      <h2>Send a Message</h2>
+      <p>You can reach me personally via email or send a message below.</p>
+      <p>Messages will be replied within 24 hours</p>
+
+      <form class="contact-form" id="contactForm">
+        <label for="name">Your Name</label>
+        <input type="text" id="name" name="name" required />
+
+        <label for="email">Your Email</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="6" required></textarea>
+
+        <button type="submit">Send Message</button>
+      </form>
+      <p id="submit-msg" style="color: green; margin-top: 10px;"></p>
+
+      <p class="direct-email">Or email me directly at:
+        <a id="contact-email" href="mailto:rencebluntpoetry@gmail.com">renceblunt@gmail.com</a>
+      </p>
+    </section>
+  </main>
 
 
   <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-container">
+           <a href="admin.html">Admin</a>
       <p>&copy; 2025 Rence Blunt. All rights reserved.</p>
       <nav class="footer-links">
         <a href="index.html">Home</a>
@@ -40,7 +70,30 @@
       </nav>
     </div>
   </footer>
-<script type="module" src="script.js"></script>
-  <script src="script.js"></script>
+    <Script>// Navbar toggle (for mobile menu)
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("menu-toggle");
+  const navLinks = document.getElementById("nav-links");
+
+  if (toggle && navLinks) {
+    toggle.addEventListener("click", () => {
+      navLinks.classList.toggle("show");
+    });
+  }
+
+  // Close menu on link click (mobile)
+  if (navLinks) {
+    const links = navLinks.querySelectorAll("a");
+    links.forEach(link => {
+      link.addEventListener("click", () => {
+        navLinks.classList.remove("show");
+      });
+    });
+  }
+});
+</Script>
+
+<script type="module" src="contact.js"></script>
+
 </body>
 </html>

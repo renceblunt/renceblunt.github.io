@@ -1,0 +1,214 @@
+/* === ABOUT PAGE === */
+.about-section {
+  padding: 60px 20px;
+  background: #fafafa;
+}
+
+.about-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+/* Force text first on big screens */
+.about-text {
+  flex: 1;
+  min-width: 280px;
+  order: 1;
+}
+
+.about-image {
+  flex: 1;
+  text-align: center;
+  min-width: 250px;
+  order: 2;
+}
+
+/* On smaller screens, swap order */
+@media (max-width: 768px) {
+  .about-container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .about-image {
+    order: 1; /* image comes first */
+  }
+
+  .about-text {
+    order: 2; /* text follows */
+  }
+}
+
+.about-image img {
+  max-width: 300px;
+  width: 100%;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-bottom: 15px; /* spacing for the name */
+}
+
+/* Added styling for name + pen name under the image */
+.about-image .author-info {
+  text-align: center;
+  color: #333;
+}
+
+.about-image .author-info h3 {
+  margin: 10px 0 5px;
+  font-size: 1.4rem;
+}
+
+.about-image .author-info p {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* Mission & Vision */
+.mission-section {
+  background: #fff;
+  padding: 60px 20px;
+}
+
+.mission-container {
+  display: flex;
+  max-width: 1000px;
+  margin: 0 auto;
+  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.mission-block {
+  flex: 1;
+  min-width: 280px;
+  padding: 25px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease;
+}
+
+.mission-block:hover {
+  transform: translateY(-5px);
+}
+
+.mission-block h3 {
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  color: #222;
+}
+
+.mission-block p {
+  color: #555;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .about-container {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .about-text h2 {
+    font-size: 1.8rem;
+  }
+  
+  .about-image img {
+    max-width: 220px;
+  }
+}
+
+/* === PLATFORM SECTION === */
+.platform-section {
+  background: #fdfdfd;
+  padding: 60px 20px;
+}
+
+.platform-container {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.platform-container h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.platform-container p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #555;
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+/* Hover effect for subtle interaction */
+.platform-container:hover {
+  transform: scale(1.01);
+  transition: transform 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .platform-container h2 {
+    font-size: 1.6rem;
+  }
+
+  .platform-container p {
+    font-size: 1rem;
+  }
+}
+
+/* === Dedication Section === */
+.dedication-section {
+  background: #fefefe;
+  padding: 60px 20px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+.dedication-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.dedication-section h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.dedication-section p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #444;
+  margin-bottom: 15px;
+}
+
+.dedication-sign {
+  margin-top: 20px;
+  font-style: italic;
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dedication-section h2 {
+    font-size: 1.6rem;
+  }
+  .dedication-section p {
+    font-size: 1rem;
+  }
+}
+
+

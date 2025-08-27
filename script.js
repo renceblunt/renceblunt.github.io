@@ -1,5 +1,11 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { 
+  initializeApp 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { 
+  getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc, 
+  enableIndexedDbPersistence, startAfter 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -14,6 +20,19 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// Enable offline persistence
+enableIndexedDbPersistence(db).catch(err => {
+  if (err.code === 'failed-precondition') {
+    console.warn("Persistence failed: multiple tabs open");
+  } else if (err.code === 'unimplemented') {
+    console.warn("Persistence not supported in this browser");
+  }
+});
+
+// Track pagination
+let lastVisible = null;
+let reachedEnd = false;
 
 // Load weekly highlights
 async function loadWeeklyHighlights() {
@@ -47,61 +66,86 @@ function truncatePoem(text, lines = 8) {
   };
 }
 
-// Load recent poems
-async function loadRecentPoems(limitCount = 10) {
+// Load poems with pagination
+async function loadRecentPoems(initial = false) {
+  if (reachedEnd) return;
+
   try {
     const colRef = collection(db, "recentPoems");
-    const q = query(colRef, orderBy("timestamp", "desc"), limit(limitCount));
+    let q = query(colRef, orderBy("timestamp", "desc"), limit(10));
+
+    if (lastVisible && !initial) {
+      q = query(colRef, orderBy("timestamp", "desc"), startAfter(lastVisible), limit(10));
+    }
+
     const snapshot = await getDocs(q);
 
-    const container = document.getElementById("recent-poems-container");
-    container.innerHTML = "";
-
-    if (!snapshot.empty) {
-      snapshot.docs.forEach(doc => {
-        const poem = doc.data();
-        const card = document.createElement("div");
-        card.className = "recent-poem-card";
-
-        const truncated = truncatePoem(poem.content, 8);
-
-        card.innerHTML = `
-          <h3>${poem.title}</h3>
-          <p class="poem-content">${truncated.preview}</p>
-          ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
-          ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
-        `;
-
-        container.appendChild(card);
-
-        if (truncated.truncated) {
-          const btn = card.querySelector(".read-more-btn");
-          const p = card.querySelector(".poem-content");
-          btn.addEventListener("click", () => {
-            if (btn.textContent === "Read More") {
-              p.textContent = truncated.full;
-              btn.textContent = "Show Less";
-            } else {
-              p.textContent = truncated.preview;
-              btn.textContent = "Read More";
-            }
-          });
-        }
-      });
-    } else {
-      container.innerHTML = "<p>No recent poems available</p>";
+    if (snapshot.empty) {
+      document.getElementById("load-more-poems").style.display = "none";
+      reachedEnd = true;
+      return;
     }
+
+    const container = document.getElementById("recent-poems-container");
+    if (initial) container.innerHTML = ""; // clear only first time
+
+    snapshot.docs.forEach(docSnap => {
+      const poem = docSnap.data();
+      const card = document.createElement("div");
+      card.className = "recent-poem-card";
+
+      const truncated = truncatePoem(poem.content, 8);
+
+      card.innerHTML = `
+        <h3>${poem.title}</h3>
+        <p class="poem-content">${truncated.preview}</p>
+        ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
+        ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
+      `;
+
+      container.appendChild(card);
+
+      if (truncated.truncated) {
+        const btn = card.querySelector(".read-more-btn");
+        const p = card.querySelector(".poem-content");
+        btn.addEventListener("click", () => {
+          if (btn.textContent === "Read More") {
+            p.textContent = truncated.full;
+            btn.textContent = "Show Less";
+          } else {
+            p.textContent = truncated.preview;
+            btn.textContent = "Read More";
+          }
+        });
+      }
+    });
+
+    lastVisible = snapshot.docs[snapshot.docs.length - 1];
+    if (snapshot.size < 10) {
+      document.getElementById("load-more-poems").style.display = "none";
+      reachedEnd = true;
+    }
+
   } catch (err) {
     console.error("Error fetching recent poems:", err);
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadWeeklyHighlights();
-  loadRecentPoems(10);
-});
+// Offline/online notice
+function setupOfflineNotice() {
+  window.addEventListener("offline", () => {
+    const notice = document.createElement("div");
+    notice.textContent = "⚠ You are offline. Viewing cached content.";
+    notice.className = "offline-notice";
+    document.body.prepend(notice);
+  });
+  window.addEventListener("online", () => {
+    document.querySelectorAll(".offline-notice").forEach(el => el.remove());
+  });
+}
 
-document.addEventListener("DOMContentLoaded", () => {
+// Navbar toggle
+function setupNavbarToggle() {
   const toggle = document.getElementById("menu-toggle");
   const navLinks = document.getElementById("nav-links");
 
@@ -109,10 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
     toggle.addEventListener("click", () => {
       navLinks.classList.toggle("show");
     });
-  }
 
-  // Close menu on link click (mobile)
-  if (navLinks) {
     const links = navLinks.querySelectorAll("a");
     links.forEach(link => {
       link.addEventListener("click", () => {
@@ -120,4 +161,33 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
+}
+
+// Initialize everything
+document.addEventListener("DOMContentLoaded", () => {
+  loadWeeklyHighlights();
+  loadRecentPoems(true);
+  setupNavbarToggle();
+  setupOfflineNotice();
+
+  // Load More button
+  const loadMoreBtn = document.getElementById("load-more-poems");
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", () => {
+      loadRecentPoems(false);
+    });
+  }
+
+  // Search filter
+  const searchInput = document.getElementById("recent-poems-search");
+  const container = document.getElementById("recent-poems-container");
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase();
+    container.querySelectorAll(".recent-poem-card").forEach(card => {
+      const title = card.querySelector("h3").textContent.toLowerCase();
+      const content = card.querySelector(".poem-content").textContent.toLowerCase();
+      card.style.display = (title.includes(query) || content.includes(query)) ? "block" : "none";
+    });
+  });
 });
+
