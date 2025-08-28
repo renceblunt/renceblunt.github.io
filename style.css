@@ -28,7 +28,7 @@ body {
 }
 
 .logo {
-  font-size: 1.2rem;
+  font-size: 1.0rem;
   font-weight: bold;
   color: #cccccc;
 }
@@ -220,31 +220,38 @@ body {
 
 @media (max-width: 480px) {
   .hero {
-    padding: 30px 10px;   /* even smaller on small phones */
+    padding: 20px 10px;   /* even smaller on small phones */
   }
 
   .hero h1 {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
   }
 
   .hero .subtitle {
-    font-size: 0.9rem;
+    font-size: 0.4rem;
+  }
+    .hero p {
+    font-size: 0.9rem; /* smaller paragraph text */
   }
 }
+/* --- Reduce nav toggle (hamburger) size and link spacing on small screens --- */
+@media (max-width: 768px) {
+  .menu-toggle {
+    font-size: 1.5rem; /* smaller hamburger icon */
+    padding: 4px 6px;  /* less padding */
+  }
 
+  .nav-links a {
+    font-size: 13px;   /* smaller link text */
+    padding: 5px 12px; /* less vertical/horizontal padding */
+  }
 
-/* Poems */
-.poem {
-  margin-bottom: 40px;
-  padding: 20px;
-  border-left: 4px solid #222;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    /* Reduce logo size */
+  .navbar .logo {
+  font-weight: bold;
+  font-size: 1rem;
 }
 
-.poem h2 {
-  margin-bottom: 10px;
-  color: #444;
 }
 
 /* Weekly Highlights Container */
@@ -371,7 +378,7 @@ body {
   border: 1px solid #e0d6b0; /* Slight darker edge */
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
   margin-bottom: 20px;
-  font-family: 'Georgia', serif; 
+font-family: 'Lato', sans-serif;
   color: #4b3f2f; /* Warm brown text for old-paper feel */
   line-height: 1.7;
   position: relative;
@@ -407,7 +414,7 @@ body {
 .recent-poem-card .author {
   font-style: italic;
   color: #555;
-  font-size: 1.08rem;
+  font-size: 1.0rem;
 }
 
 .read-more-btn {
@@ -486,4 +493,223 @@ body {
 }
 
 
+/* User dropdown */
+/* --- Username Styling --- */
+#user-display {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Stylish font */
+  font-weight: bold;
+  color: #ff6f61; /* Stylish color */
+  font-size: 16px;
+  margin-right: 10px;
+  cursor: pointer;
+}
 
+/* --- Dropdown container --- */
+.user-dropdown {
+  position: relative;
+  display: inline-block;
+  font-weight: bold;
+  font-family: 'Arial', sans-serif;
+  color: #ff6600; /* fallback color */
+  cursor: pointer;
+  margin-left: 15px; /* spacing from logo on large screens */
+}
+
+/* Dropdown content */
+.user-dropdown .dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #fff;
+  min-width: 100px;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+  border-radius: 5px;
+  top: 30px;
+  left: 0;
+}
+
+.user-dropdown .dropdown-content a {
+  color: #333;
+  padding: 8px 12px;
+  text-decoration: none;
+  display: block;
+  font-size: 14px;
+}
+
+.user-dropdown .dropdown-content a:hover {
+  background-color: #f0f0f0;
+}
+
+.user-dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* --- Responsive adjustment (small screens) --- */
+@media (max-width: 768px) {
+  /* Place username next to logo */
+  #user-display {
+    display: inline-block;
+    margin-left: 10px;
+    margin-right: 5px;
+  }
+
+  /* Optional dropdown arrow next to username */
+  #user-display::after {
+    content: " ▼";
+    font-size: 0.7rem;
+    margin-left: 3px;
+  }
+
+  /* Adjust dropdown positioning so it opens below username */
+  .user-dropdown {
+    margin-left: 0;
+  }
+}
+
+
+
+
+
+/* ---------- Poem Actions & Comments Styling ---------- */
+.recent-poem-card .poem-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px; /* space between elements */
+  margin-top: 10px;
+}
+
+.recent-poem-card .comment-section {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.recent-poem-card .comment-input {
+  flex: 1;
+  min-width: 150px;
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fafafa;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.recent-poem-card .comment-input:focus {
+  border-color: #888;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.recent-poem-card .comment-btn,
+.recent-poem-card .like-btn,
+.recent-poem-card .show-comments-btn {
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  transition: all 0.2s ease;
+}
+
+.recent-poem-card .comment-btn:hover,
+.recent-poem-card .like-btn:hover,
+.recent-poem-card .show-comments-btn:hover {
+  background-color: #eee;
+}
+
+.recent-poem-card .like-btn.liked {
+  background-color: #ffdddd;
+  border-color: #ff6666;
+}
+
+.recent-poem-card .show-comments-btn {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+}
+
+.recent-poem-card .comment-list {
+  margin-top: 10px;
+  padding-left: 10px;
+  border-left: 2px solid #eee;
+  background-color: #fafafa;
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.recent-poem-card .comment-list .comment {
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee;
+}
+
+.recent-poem-card .comment-list .comment:last-child {
+  border-bottom: none;
+}
+
+.message-count {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.message-count:hover {
+  color: #960606;
+}
+
+/* ---------- Responsive adjustments for small screens ---------- */
+@media screen and (max-width: 600px) {
+  .poem-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px; /* smaller spacing */
+  }
+
+  /* Like container (button + count) */
+  .like-container {
+    display: flex;
+    align-items: center;
+    gap: 2px; /* smaller gap between like button and number */
+    order: -1; /* keep it first */
+  }
+
+  .like-btn {
+    font-size: 0.8rem; /* smaller */
+    padding: 4px 6px;   /* reduced padding */
+  }
+
+  .like-count {
+    font-size: 0.8rem; /* smaller number */
+  }
+
+  .message-count {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+  }
+
+  .comment-btn {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+  }
+
+  /* Comment input box */
+  .comment-input {
+    font-size: 0.8rem;      /* smaller text */
+    padding: 4px 6px;       /* smaller padding */
+    width: 120px;           /* reduced width */
+    max-width: calc(100% - 80px); /* ensures it doesn't overflow */
+    flex-grow: 1;            /* expand if possible */
+  }
+
+  .comment-list {
+    padding: 6px;
+  }
+
+  .comment-list .comment {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+  }
+}

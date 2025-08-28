@@ -16,9 +16,7 @@
       border-radius: 6px;
       cursor: pointer;
     }
-    .load-more-btn:hover {
-      background: #555;
-    }
+    .load-more-btn:hover { background: #555; }
     .offline-notice {
       background: #ffcc00;
       color: #000;
@@ -29,285 +27,351 @@
   </style>
 </head>
 <body>
-  <!-- Navbar -->
-  <nav class="navbar">
-    <div class="logo">Rence Blunt Poetry</div>
-    <div class="menu-toggle" id="menu-toggle">☰</div>
-    <div class="nav-links" id="nav-links">
-      <a href="index.html">Home</a>
-      <a href="poems.html" class="active">Poems</a>
-          <a href="poemslink.html">Links</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
-       <button id="logoutBtn" style="padding: 8px 16px; background: #d9534f; color: white; border: none; border-radius: 5px; cursor: pointer;">
-  Logout
-</button>
-    </div>
-  </nav>
 
-  <section class="recent-poems-section" style="position: relative;">
-    <div class="poem-header">
-      <!-- Sort (left) -->
-      <div class="poem-sort">
-        <select id="sort-poems">
-          <option value="az">Sort: A → Z</option>
-          <option value="za">Sort: Z → A</option>
-        </select>
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="logo">Rence Blunt Poetry</div>
+  <div class="menu-toggle" id="menu-toggle">☰</div>
+  <div class="nav-links" id="nav-links">
+    <a href="index.html">Home</a>
+    <a href="poems.html" class="active">Poems</a>
+    <a href="poemslink.html">Links</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<!-- Recent Poems Section -->
+<section class="recent-poems-section" style="position: relative;">
+  <div class="poem-header">
+    <div class="poem-sort">
+      <select id="sort-poems">
+        <option value="az">Sort: A → Z</option>
+        <option value="za">Sort: Z → A</option>
+      </select>
+    </div>
+    <h2 class="poem-title">All Poems</h2>
+    <div class="poem-search">
+      <input type="text" id="recent-poems-search" placeholder="Search..." />
+    </div>
+  </div>
+
+  <p class="poem-subtitle">
+    Discover a growing collection of verses — arranged alphabetically so you can wander through words with ease.
+  </p>
+
+  <div id="recent-poems-container" class="recent-poems-container">
+    <p>Loading recent poems...</p>
+  </div>
+
+  <button id="load-more-poems" class="load-more-btn" style="display:none;">Load More</button>
+
+  <p id="last-synced" style="text-align:center; font-size:0.9em; color:gray;"></p>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="footer-container">
+    <p>&copy; 2025 Rence Blunt. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- Firebase + App JS -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc, enableIndexedDbPersistence, startAfter, updateDoc, increment, addDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth();
+
+// Offline persistence
+enableIndexedDbPersistence(db).catch(err => console.warn("Persistence error:", err.code));
+
+// DOM references
+const container = document.getElementById("recent-poems-container");
+const loadMoreBtn = document.getElementById("load-more-poems");
+const sortSelect = document.getElementById("sort-poems");
+const searchInput = document.getElementById("recent-poems-search");
+
+// State
+let allPoems = [];
+let lastVisible = null;
+let reachedEnd = false;
+const poemsPerPage = 10;
+
+// ---------------- Helper ----------------
+function truncatePoem(text, lines=8){
+  const allLines = text.split(/\r?\n/);
+  if(allLines.length <= lines) return { preview: text, full: text, truncated: false };
+  return { preview: allLines.slice(0, lines).join("\n"), full: text, truncated: true };
+}
+
+// ---------------- Render Poem ----------------
+async function renderPoemCard(poem, docId){
+  const card = document.createElement("div");
+  card.className = "recent-poem-card";
+  card.dataset.id = docId;
+
+  const truncated = truncatePoem(poem.content, 8);
+  const likes = typeof poem.likes === "number" ? poem.likes : 0;
+
+  card.innerHTML = `
+    <h3>${poem.title}</h3>
+    <p class="poem-content">${truncated.preview.replace(/\n/g,"<br>")}</p>
+    ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
+    ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
+    <div class="poem-actions">
+      <div class="comment-section">
+        <textarea class="comment-input" placeholder="Write a comment..." rows="1"></textarea>
+        <button class="comment-btn">Post</button>
       </div>
-
-      <!-- Title (center) -->
-      <h2 class="poem-title">All Poems</h2>
-
-      <!-- Search (right) -->
-      <div class="poem-search">
-        <input type="text" id="recent-poems-search" placeholder="Search..." />
-      </div>
+      <button class="like-btn">❤️</button>
+      <span class="like-count">${likes}</span>
+      <span class="message-count">💬 0</span>
     </div>
+    <div class="comment-list" style="display:none;"></div>
+  `;
 
-    <p class="poem-subtitle">
-      Discover a growing collection of verses — arranged alphabetically so you can wander through words with ease.
-    </p>
+  container.appendChild(card);
 
-    <div id="recent-poems-container" class="recent-poems-container">
-      <p>Loading recent poems...</p>
-    </div>
-
-    <!-- Load More button -->
-    <button id="load-more-btn" class="load-more-btn" style="display:none;">Load More</button>
-
-    <p id="last-synced" style="text-align:center; font-size:0.9em; color:gray;"></p>
-  </section>
-
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="footer-container">
-      <p>&copy; 2025 Rence Blunt. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <!-- Firebase + Offline Sync -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { 
-      getFirestore, collection, onSnapshot, enableIndexedDbPersistence 
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
-      authDomain: "silent-depth.firebaseapp.com",
-      projectId: "silent-depth",
-      storageBucket: "silent-depth.appspot.com",
-      messagingSenderId: "78008755450",
-      appId: "1:78008755450:web:3fd0f0f298a08820935543"
-    };
-
-    // Init Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Enable offline persistence
-    enableIndexedDbPersistence(db).catch(err => {
-      console.warn("Persistence error:", err.code);
-    });
-
-    let allPoems = [];       // keep all poems
-    let poemsShown = 0;      // how many poems are displayed each time
-    const poemsPerPage = 10; // show 10 at a time
-
-    // Helper: truncate poem after N lines
-    function truncatePoem(text, lines = 10) {
-      const allLines = text.split(/\r?\n/);
-      if (allLines.length <= lines) {
-        return { preview: text, full: text, truncated: false };
-      }
-      return {
-        preview: allLines.slice(0, lines).join("\n"),
-        full: text,
-        truncated: true
-      };
+  // --- Set like button active if user already liked ---
+  const user = auth.currentUser;
+  if(user){
+    const likedBy = Array.isArray(poem.likedBy) ? poem.likedBy : [];
+    if(likedBy.includes(user.uid)){
+      card.querySelector(".like-btn").classList.add("liked");
     }
+  }
 
-    // Render next batch of poems
-    function renderMorePoems() {
-      const container = document.getElementById("recent-poems-container");
-      const nextBatch = allPoems.slice(poemsShown, poemsShown + poemsPerPage);
-
-      nextBatch.forEach(poem => {
-        const truncated = truncatePoem(poem.content, 10);
-
-        const card = document.createElement("div");
-        card.className = "recent-poem-card";
-        card.innerHTML = `
-          <h3>${poem.title}</h3>
-          <p class="poem-content">${truncated.preview.replace(/\n/g, "<br>")}</p>
-          ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
-          ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
-        `;
-        container.appendChild(card);
-
-        if (truncated.truncated) {
-          const btn = card.querySelector(".read-more-btn");
-          const p = card.querySelector(".poem-content");
-          btn.addEventListener("click", () => {
-            if (btn.textContent === "Read More") {
-              p.innerHTML = truncated.full.replace(/\n/g, "<br>");
-              btn.textContent = "Show Less";
-            } else {
-              p.innerHTML = truncated.preview.replace(/\n/g, "<br>");
-              btn.textContent = "Read More";
-            }
-          });
-        }
-      });
-
-      poemsShown += nextBatch.length;
-
-      // Show/hide Load More button
-      document.getElementById("load-more-btn").style.display =
-        poemsShown < allPoems.length ? "block" : "none";
-    }
-
-    // Render all poems (with reset)
-    function renderPoems(docs) {
-      const container = document.getElementById("recent-poems-container");
-      container.innerHTML = "";
-
-      // Extract poems
-      allPoems = docs.map(doc => doc.data());
-
-      // Sort default A–Z
-      allPoems.sort((a, b) => a.title.localeCompare(b.title));
-
-      // Reset counter
-      poemsShown = 0;
-
-      // Render first batch
-      renderMorePoems();
-
-      document.getElementById("last-synced").textContent =
-        "Last synced: " + new Date().toLocaleString();
-    }
-
-    // Sort poems manually
-    function sortPoems(order = "az") {
-      if (order === "az") {
-        allPoems.sort((a, b) => a.title.localeCompare(b.title));
+  // Read More toggle
+  if(truncated.truncated){
+    const btn = card.querySelector(".read-more-btn");
+    const p = card.querySelector(".poem-content");
+    btn.addEventListener("click", ()=>{
+      if(btn.textContent==="Read More"){
+        p.innerHTML = truncated.full.replace(/\n/g,"<br>");
+        btn.textContent="Show Less";
       } else {
-        allPoems.sort((a, b) => b.title.localeCompare(a.title));
+        p.innerHTML = truncated.preview.replace(/\n/g,"<br>");
+        btn.textContent="Read More";
       }
-
-      poemsShown = 0;
-      document.getElementById("recent-poems-container").innerHTML = "";
-      renderMorePoems();
-    }
-
-    // Setup sort dropdown
-    function setupSortDropdown() {
-      const sortSelect = document.getElementById("sort-poems");
-      sortSelect.addEventListener("change", (e) => sortPoems(e.target.value));
-    }
-
-    // Search
-    function setupSearch() {
-      const searchInput = document.getElementById("recent-poems-search");
-      const container = document.getElementById("recent-poems-container");
-
-      searchInput.addEventListener("input", (e) => {
-        const query = e.target.value.toLowerCase();
-        container.innerHTML = "";
-        poemsShown = 0;
-
-        const filtered = allPoems.filter(poem => {
-          const title = poem.title.toLowerCase();
-          const content = poem.content.toLowerCase();
-          return title.includes(query) || content.includes(query);
-        });
-
-        // Render filtered 10-by-10
-        function renderFilteredBatch() {
-          const nextBatch = filtered.slice(poemsShown, poemsShown + poemsPerPage);
-          nextBatch.forEach(poem => {
-            const truncated = truncatePoem(poem.content, 10);
-
-            const card = document.createElement("div");
-            card.className = "recent-poem-card";
-            card.innerHTML = `
-              <h3>${poem.title}</h3>
-              <p class="poem-content">${truncated.preview.replace(/\n/g, "<br>")}</p>
-              ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
-              ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
-            `;
-            container.appendChild(card);
-          });
-
-          poemsShown += nextBatch.length;
-          document.getElementById("load-more-btn").style.display =
-            poemsShown < filtered.length ? "block" : "none";
-        }
-
-        renderFilteredBatch();
-
-        // Replace Load More behavior when searching
-        const loadBtn = document.getElementById("load-more-btn");
-        loadBtn.onclick = renderFilteredBatch;
-      });
-    }
-
-    // Offline/online notice
-    function setupOfflineNotice() {
-      window.addEventListener("offline", () => {
-        const notice = document.createElement("div");
-        notice.textContent = "⚠ You are offline. Showing cached poems.";
-        notice.className = "offline-notice";
-        document.body.prepend(notice);
-      });
-      window.addEventListener("online", () => {
-        document.querySelectorAll(".offline-notice").forEach(el => el.remove());
-      });
-    }
-
-    // Init
-    document.addEventListener("DOMContentLoaded", () => {
-      const colRef = collection(db, "recentPoems");
-
-      // Live sync + offline cache
-      onSnapshot(colRef, (snapshot) => {
-        renderPoems(snapshot.docs);
-      });
-
-      setupSortDropdown();
-      setupSearch();
-      setupOfflineNotice();
-
-      // Load More button
-      document.getElementById("load-more-btn").addEventListener("click", renderMorePoems);
-    });
-  </script>
-  <Script>// Navbar toggle (for mobile menu)
-document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.getElementById("menu-toggle");
-  const navLinks = document.getElementById("nav-links");
-
-  if (toggle && navLinks) {
-    toggle.addEventListener("click", () => {
-      navLinks.classList.toggle("show");
     });
   }
 
-  // Close menu on link click (mobile)
-  if (navLinks) {
-    const links = navLinks.querySelectorAll("a");
-    links.forEach(link => {
-      link.addEventListener("click", () => {
-        navLinks.classList.remove("show");
-      });
+  // Fetch accurate comment count
+  const commentsSnapshot = await getDocs(collection(db,"recentPoems",docId,"comments"));
+  card.querySelector(".message-count").textContent = `💬 ${commentsSnapshot.size}`;
+}
+
+
+// ---------------- Load Poems ----------------
+async function loadRecentPoems(initial=false){
+  if(reachedEnd) return;
+
+  const colRef = collection(db, "recentPoems");
+  let q;
+
+  if(!lastVisible || initial){
+    q = query(colRef, orderBy("title","asc"), limit(poemsPerPage));
+    if(initial){
+      container.innerHTML="";
+      lastVisible = null;
+      reachedEnd = false;
+      allPoems = [];
+    }
+  } else {
+    q = query(colRef, orderBy("title","asc"), startAfter(lastVisible), limit(poemsPerPage));
+  }
+
+  const snapshot = await getDocs(q);
+  if(snapshot.empty){
+    reachedEnd = true;
+    loadMoreBtn.style.display="none";
+    return;
+  }
+
+  for(const docSnap of snapshot.docs){
+    const poem = docSnap.data();
+    allPoems.push({...poem, id: docSnap.id});
+  }
+
+  // Always sort allPoems A → Z before rendering
+  allPoems.sort((a,b) => a.title.localeCompare(b.title));
+
+  container.innerHTML = ""; // clear previous render
+  allPoems.forEach(p => renderPoemCard(p, p.id));
+
+  lastVisible = snapshot.docs[snapshot.docs.length-1];
+  loadMoreBtn.style.display = snapshot.size < poemsPerPage ? "none" : "block";
+}
+
+
+// ---------------- Sort + Search ----------------
+sortSelect.addEventListener("change", ()=> {
+  const order = sortSelect.value;
+  allPoems.sort((a,b) => order==="az"? a.title.localeCompare(b.title) : b.title.localeCompare(a.title));
+  container.innerHTML="";
+  allPoems.slice(0, poemsPerPage).forEach(p => renderPoemCard(p,p.id));
+});
+
+searchInput.addEventListener("input", ()=>{
+  const q = searchInput.value.toLowerCase();
+  container.querySelectorAll(".recent-poem-card").forEach(card=>{
+    const title = card.querySelector("h3").textContent.toLowerCase();
+    const content = card.querySelector(".poem-content").textContent.toLowerCase();
+    card.style.display = (title.includes(q) || content.includes(q)) ? "block" : "none";
+  });
+});
+
+// ---------------- Likes / Comments ----------------
+// ---------------- Likes / Comments ----------------
+document.addEventListener("click", async e => {
+  const user = auth.currentUser;
+  const card = e.target.closest(".recent-poem-card");
+  if (!card) return;
+
+  // Like
+  if (e.target.classList.contains("like-btn")) {
+    if (!user) { alert("Sign in to like poems!"); return; }
+    const docRefPoem = doc(db, "recentPoems", card.dataset.id);
+    const countSpan = card.querySelector(".like-count");
+    const docSnap = await getDoc(docRefPoem);
+    if (!docSnap.exists()) return;
+    const data = docSnap.data();
+    const likedBy = Array.isArray(data.likedBy) ? data.likedBy : [];
+    let likes = typeof data.likes === "number" ? data.likes : 0;
+
+    if (likedBy.includes(user.uid)) {
+      if (likes > 0) {
+        await updateDoc(docRefPoem, { likes: increment(-1), likedBy: likedBy.filter(uid => uid !== user.uid) });
+        likes--;
+      }
+      countSpan.textContent = likes;
+      e.target.classList.remove("liked");
+    } else {
+      await updateDoc(docRefPoem, { likes: increment(1), likedBy: arrayUnion(user.uid) });
+      countSpan.textContent = likes + 1;
+      e.target.classList.add("liked");
+    }
+  }
+
+  // Comment
+  if (e.target.classList.contains("comment-btn")) {
+    if (!user) { alert("Sign in to comment!"); return; }
+    const input = card.querySelector(".comment-input");
+    const commentList = card.querySelector(".comment-list");
+    const text = input.value.trim();
+    if (!text) return;
+
+    await addDoc(collection(db, "recentPoems", card.dataset.id, "comments"), {
+      userId: user.uid,
+      text,
+      timestamp: new Date()
     });
+
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    let username = user.email;
+    if (userDoc.exists()) username = userDoc.data().username || user.email;
+
+    const div = document.createElement("div");
+    div.className = "comment";
+    div.style.background = "#f0f0f0";
+    div.style.padding = "8px 12px";
+    div.style.margin = "6px 0";
+    div.style.borderRadius = "6px";
+    div.textContent = `${username}: ${text}`;
+
+    // Prepend new comment at the top
+    commentList.prepend(div);
+    commentList.style.display = "block";
+
+    input.value = "";
+    input.style.height = "auto";
+
+    // Update comment count
+    const commentsSnapshot = await getDocs(collection(db, "recentPoems", card.dataset.id, "comments"));
+    card.querySelector(".message-count").textContent = `💬 ${commentsSnapshot.size}`;
+  }
+
+  // Show comments
+  if (e.target.classList.contains("message-count")) {
+    const commentList = card.querySelector(".comment-list");
+
+    // Toggle visibility
+    if (commentList.style.display === "block") {
+      commentList.style.display = "none";
+      return;
+    }
+
+    commentList.innerHTML = ""; // clear previous
+
+    // Fetch comments ordered by timestamp descending (newest first)
+    const commentsSnapshot = await getDocs(
+      query(
+        collection(db, "recentPoems", card.dataset.id, "comments"),
+        orderBy("timestamp", "desc")
+      )
+    );
+
+    for (const docSnap of commentsSnapshot.docs) {
+      const c = docSnap.data();
+      let username = "Anonymous";
+
+      if (c.userId) {
+        const userDoc = await getDoc(doc(db, "users", c.userId));
+        if (userDoc.exists()) username = userDoc.data().username || "Anonymous";
+      }
+
+      const div = document.createElement("div");
+      div.className = "comment";
+      div.style.background = "#f0f0f0";
+      div.style.padding = "8px 12px";
+      div.style.margin = "6px 0";
+      div.style.borderRadius = "6px";
+      div.textContent = `${username}: ${c.text}`;
+      commentList.appendChild(div);
+    }
+
+    commentList.style.display = "block";
   }
 });
-</Script>
 
-   <script src="script.js"></script>
-<script type="module" src="script.js"></script>
+// ---------------- Navbar Toggle ----------------
+document.getElementById("menu-toggle").addEventListener("click", ()=>document.getElementById("nav-links").classList.toggle("show"));
+document.querySelectorAll("#nav-links a").forEach(link=>link.addEventListener("click",()=>document.getElementById("nav-links").classList.remove("show")));
+
+// ---------------- Offline Notice ----------------
+window.addEventListener("offline", ()=>{ 
+  const notice = document.createElement("div");
+  notice.className="offline-notice";
+  notice.textContent="⚠ You are offline. Viewing cached content.";
+  document.body.prepend(notice);
+});
+window.addEventListener("online", ()=>document.querySelectorAll(".offline-notice").forEach(n=>n.remove()));
+
+// ---------------- Auth State ----------------
+onAuthStateChanged(auth,user=>{});
+
+// ---------------- Init ----------------
+document.addEventListener("DOMContentLoaded", ()=>{
+  loadRecentPoems(true);
+  loadMoreBtn.addEventListener("click", ()=>loadRecentPoems(false));
+});
+</script>
+
 </body>
 </html>
+
+

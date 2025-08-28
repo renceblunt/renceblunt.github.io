@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="usersaccount.css">
 </head>
 <body>
+
   <div class="container">
     <h2>Login</h2>
 
@@ -23,12 +24,30 @@
     <p id="login-status" class="status"></p>
 
     <div class="links">
-      <p><a href="users-forgot.html">Forgot Password?</a></p>
       <p>Don’t have an account? <a href="users-signup.html">Sign up here</a></p>
     </div>
   </div>
 
   <!-- Firebase Auth JS -->
   <script type="module" src="usersAccount.js"></script>
+
+  <script type="module">
+    import { auth, onAuthStateChanged } from './usersAccount.js';
+
+    const loginLink = document.getElementById("loginLink");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const userInfoDiv = document.getElementById("user-info");
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginLink.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+      } else {
+        loginLink.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        userInfoDiv.textContent = "";
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Poems Data</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #fafafa;
+    }
+
+    /* Header with title and search */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      color: #333;
+    }
+
+    #poems-search {
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 200px;
+    }
+
+    table.poems-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    table.poems-table th,
+    table.poems-table td {
+      padding: 10px;
+      border: 1px solid #eee;
+      text-align: left;
+      font-size: 0.9rem;
+      vertical-align: top;
+    }
+
+    table.poems-table th {
+      background-color: #f4f4f4;
+    }
+
+    table.poems-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    /* Users list styling */
+    .user-list {
+      list-style: disc;
+      padding-left: 20px;
+      margin: 0;
+    }
+    .user-list li {
+      margin-bottom: 2px;
+    }
+
+    /* Responsive adjustments */
+    @media screen and (max-width: 600px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      #poems-search {
+        width: 100%;
+      }
+      table.poems-table th,
+      table.poems-table td {
+        font-size: 0.8rem;
+        padding: 6px;
+      }
+    }
+  </style>
+
+  <script type="module">
+    import { 
+      initializeApp 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+    import { 
+      getFirestore, collection, getDocs, doc, getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.appspot.com",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const tableBody = document.getElementById("poems-table-body");
+    const searchInput = document.getElementById("poems-search");
+
+    async function loadPoems() {
+      tableBody.innerHTML = "";
+      try {
+        const poemsCol = collection(db, "recentPoems");
+        const poemsSnap = await getDocs(poemsCol);
+
+        for (const docSnap of poemsSnap.docs) {
+          const poem = docSnap.data();
+          const docId = docSnap.id;
+
+          // Count comments
+          const commentsCol = collection(db, "recentPoems", docId, "comments");
+          const commentsSnap = await getDocs(commentsCol);
+          const commentCount = commentsSnap.size;
+
+          // Fetch usernames of commenters
+          const usernamesSet = new Set();
+          for (const cDoc of commentsSnap.docs) {
+            const cData = cDoc.data();
+            if (cData.userId) {
+              const userRef = doc(db, "users", cData.userId);
+              const userSnap = await getDoc(userRef);
+              if (userSnap.exists()) usernamesSet.add(userSnap.data().username || "Anonymous");
+              else usernamesSet.add("Anonymous");
+            } else {
+              usernamesSet.add("Anonymous");
+            }
+          }
+
+          // Create a list of usernames
+          const usernamesList = Array.from(usernamesSet).map(name => `<li>${name}</li>`).join("");
+
+          // Add table row
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${poem.title || "Untitled"}</td>
+            <td>${poem.likes || 0}</td>
+            <td>${commentCount}</td>
+            <td><ul class="user-list">${usernamesList}</ul></td>
+          `;
+          tableBody.appendChild(tr);
+        }
+      } catch (err) {
+        console.error("Error fetching poems:", err);
+      }
+    }
+
+    function filterTable() {
+      const q = searchInput.value.toLowerCase();
+      tableBody.querySelectorAll("tr").forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const match = Array.from(cells).some(cell =>
+          cell.textContent.toLowerCase().includes(q)
+        );
+        row.style.display = match ? "" : "none";
+      });
+    }
+
+    searchInput.addEventListener("input", filterTable);
+    window.addEventListener("DOMContentLoaded", loadPoems);
+  </script>
+</head>
+<body>
+
+  <div class="header">
+    <h1>All Poems Data</h1>
+    <input type="text" id="poems-search" placeholder="Search poems...">
+  </div>
+
+  <table class="poems-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Likes</th>
+        <th>Comments</th>
+        <th>Users</th>
+      </tr>
+    </thead>
+    <tbody id="poems-table-body">
+      <!-- Data populated here -->
+    </tbody>
+  </table>
+
+</body>
+</html>

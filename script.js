@@ -4,8 +4,10 @@ import {
 
 import { 
   getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc, 
-  enableIndexedDbPersistence, startAfter, updateDoc, increment, addDoc 
+  enableIndexedDbPersistence, startAfter, updateDoc, increment, addDoc, arrayUnion 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -20,6 +22,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth();
 
 // Enable offline persistence
 enableIndexedDbPersistence(db).catch(err => {
@@ -81,7 +84,8 @@ async function loadRecentPoems(initial = false) {
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
-      document.getElementById("load-more-poems").style.display = "none";
+      const loadMoreBtn = document.getElementById("load-more-poems");
+      if (loadMoreBtn) loadMoreBtn.style.display = "none";
       reachedEnd = true;
       return;
     }
@@ -89,61 +93,80 @@ async function loadRecentPoems(initial = false) {
     const container = document.getElementById("recent-poems-container");
     if (initial) container.innerHTML = ""; // clear only first time
 
-    snapshot.docs.forEach(docSnap => {
-      const poem = docSnap.data();
-      const docId = docSnap.id;
-      const card = document.createElement("div");
-      card.className = "recent-poem-card";
-      card.setAttribute("data-id", docId);
+   snapshot.docs.forEach(async (docSnap) => {
+  const poem = docSnap.data();
+  const docId = docSnap.id;
+  const card = document.createElement("div");
+  card.className = "recent-poem-card";
+  card.setAttribute("data-id", docId);
 
-      const truncated = truncatePoem(poem.content, 8);
-      const likes = poem.likes || 0;
+  const truncated = truncatePoem(poem.content, 8);
+  const likes = typeof poem.likes === "number" ? poem.likes : 0;
 
-      card.innerHTML = `
-        <h3>${poem.title}</h3>
-        <p class="poem-content">${truncated.preview}</p>
-        ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
-        ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
-        
-        <div class="poem-actions">
-          <button class="like-btn">❤️</button> 
-          <span class="like-count">${likes}</span>
-        </div>
-        
-        <div class="comment-section">
-          <input type="text" class="comment-input" placeholder="Write a comment..." />
-          <button class="comment-btn">Post</button>
-        </div>
-        <div class="comment-list"></div>
-      `;
+  card.innerHTML = `
+    <h3>${poem.title}</h3>
+    <p class="poem-content">${truncated.preview}</p>
+    ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
+    ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
 
-      container.appendChild(card);
+    <div class="poem-actions">
+      <div class="comment-section">
+        <textarea class="comment-input" placeholder="Write a comment..." rows="1"></textarea>
+        <button class="comment-btn">Post</button>
+      </div>
+      <button class="like-btn">❤️</button>
+      <span class="like-count">${likes}</span>
+      <span class="message-count">💬 0</span>
+    </div>
 
-      // Read more toggle
-      if (truncated.truncated) {
-        const btn = card.querySelector(".read-more-btn");
-        const p = card.querySelector(".poem-content");
-        btn.addEventListener("click", () => {
-          if (btn.textContent === "Read More") {
-            p.textContent = truncated.full;
-            btn.textContent = "Show Less";
-          } else {
-            p.textContent = truncated.preview;
-            btn.textContent = "Read More";
-          }
-        });
-      }
+    <div class="comment-list" style="display:none;"></div>
+  `;
 
-      // Highlight liked poems
-      const likedPoems = JSON.parse(localStorage.getItem("likedPoems") || "[]");
-      if (likedPoems.includes(docId)) {
-        card.querySelector(".like-btn").classList.add("liked");
+  container.appendChild(card);
+
+  // --- Set like button active if user already liked ---
+  const user = auth.currentUser;
+  if (user) {
+    const likedBy = Array.isArray(poem.likedBy) ? poem.likedBy : [];
+    if (likedBy.includes(user.uid)) {
+      card.querySelector(".like-btn").classList.add("liked");
+    }
+  }
+
+  // Read more toggle
+  if (truncated.truncated) {
+    const btn = card.querySelector(".read-more-btn");
+    const p = card.querySelector(".poem-content");
+    btn.addEventListener("click", () => {
+      if (btn.textContent === "Read More") {
+        p.textContent = truncated.full;
+        btn.textContent = "Show Less";
+      } else {
+        p.textContent = truncated.preview;
+        btn.textContent = "Read More";
       }
     });
+  }
+
+  // Fetch and display comment count
+  const commentsCol = collection(db, "recentPoems", docId, "comments");
+  const commentsSnapshot = await getDocs(commentsCol);
+  const messageCount = card.querySelector(".message-count");
+  messageCount.textContent = `💬 ${commentsSnapshot.size}`;
+
+  // Setup dynamic textarea expansion
+  const textarea = card.querySelector(".comment-input");
+  textarea.addEventListener("input", () => {
+    textarea.style.height = "auto";
+    textarea.style.height = textarea.scrollHeight + "px";
+  });
+});
+
 
     lastVisible = snapshot.docs[snapshot.docs.length - 1];
     if (snapshot.size < 10) {
-      document.getElementById("load-more-poems").style.display = "none";
+      const loadMoreBtn = document.getElementById("load-more-poems");
+      if (loadMoreBtn) loadMoreBtn.style.display = "none";
       reachedEnd = true;
     }
 
@@ -151,71 +174,6 @@ async function loadRecentPoems(initial = false) {
     console.error("Error fetching recent poems:", err);
   }
 }
-
-// ✅ Like handler (toggle on/off)
-document.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("like-btn")) {
-    const card = e.target.closest(".recent-poem-card");
-    const docId = card.getAttribute("data-id");
-    const countSpan = card.querySelector(".like-count");
-
-    let likedPoems = JSON.parse(localStorage.getItem("likedPoems") || "[]");
-
-    if (likedPoems.includes(docId)) {
-      // Unlike
-      await updateDoc(doc(db, "recentPoems", docId), {
-        likes: increment(-1)
-      });
-
-      countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1);
-
-      likedPoems = likedPoems.filter(id => id !== docId);
-      localStorage.setItem("likedPoems", JSON.stringify(likedPoems));
-
-      e.target.classList.remove("liked");
-    } else {
-      // Like
-      await updateDoc(doc(db, "recentPoems", docId), {
-        likes: increment(1)
-      });
-
-      countSpan.textContent = parseInt(countSpan.textContent) + 1;
-
-      likedPoems.push(docId);
-      localStorage.setItem("likedPoems", JSON.stringify(likedPoems));
-
-      e.target.classList.add("liked");
-    }
-  }
-
-  // ✅ Comment handler
-  if (e.target.classList.contains("comment-btn")) {
-    const card = e.target.closest(".recent-poem-card");
-    const docId = card.getAttribute("data-id");
-    const input = card.querySelector(".comment-input");
-    const commentList = card.querySelector(".comment-list");
-
-    const text = input.value.trim();
-    if (!text) return;
-
-    try {
-      await addDoc(collection(db, "recentPoems", docId, "comments"), {
-        text,
-        timestamp: new Date()
-      });
-
-      // Append instantly to UI
-      const div = document.createElement("div");
-      div.className = "comment";
-      div.textContent = text;
-      commentList.appendChild(div);
-
-      input.value = "";
-    } catch (err) {
-      console.error("Error posting comment:", err);
-    }
-  }
-});
 
 // Offline/online notice
 function setupOfflineNotice() {
@@ -249,30 +207,179 @@ function setupNavbarToggle() {
   }
 }
 
-// Initialize everything
+// Auth state changes (Navbar)
+onAuthStateChanged(auth, async (user) => {
+  const profileLink = document.getElementById("profile-link");
+  let userDisplay = document.getElementById("user-display");
+  if (!userDisplay) {
+    userDisplay = document.createElement("div");
+    userDisplay.id = "user-display";
+    userDisplay.className = "user-dropdown";
+    profileLink.parentNode.insertBefore(userDisplay, profileLink);
+    profileLink.style.display = "none";
+  }
+
+  if (user) {
+    const docRef = doc(db, "users", user.uid);
+    const docSnap = await getDoc(docRef);
+    let username = user.email;
+    if (docSnap.exists()) username = docSnap.data().username || user.email;
+
+    userDisplay.innerHTML = `
+      <span class="username"> ${username}</span>
+      <div class="dropdown-content">
+        <a href="#" id="logout-link">Logout</a>
+      </div>
+    `;
+
+    document.getElementById("logout-link").onclick = async (e) => {
+      e.preventDefault();
+      await signOut(auth);
+      window.location.reload();
+    };
+  } else {
+    profileLink.style.display = "inline-block";
+    if (userDisplay) userDisplay.remove();
+  }
+});
+
+// ---------- Like / Comment / Message Count Handler ----------
+document.addEventListener("click", async (e) => {
+  const user = auth.currentUser;
+
+  // LIKE / UNLIKE
+  if (e.target.classList.contains("like-btn")) {
+    if (!user) { alert("Please sign in to like poems!"); return; }
+    const card = e.target.closest(".recent-poem-card");
+    const docId = card.dataset.id;
+    const countSpan = card.querySelector(".like-count");
+    const poemRef = doc(db, "recentPoems", docId);
+
+    try {
+      const docSnap = await getDoc(poemRef);
+      if (!docSnap.exists()) return;
+      const data = docSnap.data();
+      const likedBy = Array.isArray(data.likedBy) ? data.likedBy : [];
+      let likes = typeof data.likes === "number" ? data.likes : 0;
+
+      if (likedBy.includes(user.uid)) {
+        if (likes > 0) {
+          await updateDoc(poemRef, {
+            likes: increment(-1),
+            likedBy: likedBy.filter(uid => uid !== user.uid)
+          });
+          likes -= 1;
+        }
+        countSpan.textContent = likes;
+        e.target.classList.remove("liked");
+      } else {
+        await updateDoc(poemRef, {
+          likes: increment(1),
+          likedBy: arrayUnion(user.uid)
+        });
+        countSpan.textContent = likes + 1;
+        e.target.classList.add("liked");
+      }
+
+    } catch (err) { console.error("Error updating like:", err); }
+  }
+
+  // COMMENT POST
+// COMMENT POST
+if (e.target.classList.contains("comment-btn")) {
+  if (!user) { alert("Please sign in to comment!"); return; }
+  const card = e.target.closest(".recent-poem-card");
+  const docId = card.dataset.id;
+  const input = card.querySelector(".comment-input");
+  const commentList = card.querySelector(".comment-list");
+  const text = input.value.trim();
+  if (!text) return;
+
+  try {
+    await addDoc(collection(db, "recentPoems", docId, "comments"), {
+      userId: user.uid,
+      text,
+      timestamp: new Date()
+    });
+
+    // Get username
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    let username = "Anonymous";
+    if (userDoc.exists()) username = userDoc.data().username || user.email;
+
+    // Show at top
+    const div = document.createElement("div");
+    div.className = "comment";
+    div.style.background = "#f0f0f0";
+    div.style.padding = "8px 12px";
+    div.style.margin = "6px 0";
+    div.style.borderRadius = "6px";
+    div.textContent = `${username}: ${text}`;
+    commentList.prepend(div);
+
+    input.value = "";
+    input.style.height = "auto";
+
+    const commentsSnapshot = await getDocs(collection(db, "recentPoems", docId, "comments"));
+    card.querySelector(".message-count").textContent = `💬 ${commentsSnapshot.size}`;
+
+  } catch (err) { console.error("Error posting comment:", err); }
+}
+
+  // SHOW COMMENTS
+  if (e.target.classList.contains("message-count")) {
+    const card = e.target.closest(".recent-poem-card");
+    const docId = card.dataset.id;
+    const commentList = card.querySelector(".comment-list");
+
+    if (commentList.style.display === "block") {
+      commentList.style.display = "none";
+      return;
+    }
+
+    commentList.innerHTML = ""; // clear previous
+    const commentsCol = collection(db, "recentPoems", docId, "comments");
+    const commentsSnapshot = await getDocs(query(commentsCol, orderBy("timestamp", "desc")));
+
+    for (const docSnap of commentsSnapshot.docs) {
+      const c = docSnap.data();
+      let username = "Anonymous";
+      if (c.userId) {
+        const userDoc = await getDoc(doc(db, "users", c.userId));
+        if (userDoc.exists()) username = userDoc.data().username || "Anonymous";
+      }
+      const div = document.createElement("div");
+      div.className = "comment";
+      div.style.background = "#f0f0f0";
+      div.style.padding = "8px 12px";
+      div.style.margin = "6px 0";
+      div.style.borderRadius = "6px";
+      div.textContent = `${username}: ${c.text}`;
+      commentList.appendChild(div);
+    }
+
+    commentList.style.display = "block";
+  }
+});
+
+// Initialize DOM
 document.addEventListener("DOMContentLoaded", () => {
   loadWeeklyHighlights();
   loadRecentPoems(true);
   setupNavbarToggle();
   setupOfflineNotice();
 
-  // Load More button
   const loadMoreBtn = document.getElementById("load-more-poems");
-  if (loadMoreBtn) {
-    loadMoreBtn.addEventListener("click", () => {
-      loadRecentPoems(false);
-    });
-  }
+  if (loadMoreBtn) loadMoreBtn.addEventListener("click", () => loadRecentPoems(false));
 
-  // Search filter
   const searchInput = document.getElementById("recent-poems-search");
   const container = document.getElementById("recent-poems-container");
   searchInput.addEventListener("input", () => {
-    const query = searchInput.value.toLowerCase();
+    const q = searchInput.value.toLowerCase();
     container.querySelectorAll(".recent-poem-card").forEach(card => {
       const title = card.querySelector("h3").textContent.toLowerCase();
-      const content = card.querySelector(".poem-content").textContent.toLowerCase();
-      card.style.display = (title.includes(query) || content.includes(query)) ? "block" : "none";
+      const content = card.querySelector("p.poem-content").textContent.toLowerCase();
+      card.style.display = (title.includes(q) || content.includes(q)) ? "block" : "none";
     });
   });
 });

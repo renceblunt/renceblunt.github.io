@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messages | Admin Panel</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f5f5f5;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+thead {
+  background: #2c3e50;
+  color: #fff;
+}
+th, td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+tbody tr:nth-child(even) {
+  background: #f9f9f9;
+}
+button.delete-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button.delete-btn:hover {
+  background: #c0392b;
+}
+/* --- Mobile Responsive --- */
+@media screen and (max-width: 768px) {
+  body {
+    margin: 10px;
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+  }
+
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  thead {
+    display: table-header-group; /* keep header visible while scrolling */
+  }
+
+  th, td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  td a {
+    word-break: break-word;
+  }
+
+  button.delete-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  tbody tr {
+    display: table-row;
+  }
+}
+
+/* Optional: extra small screens (phones) */
+@media screen and (max-width: 480px) {
+  h1 {
+    font-size: 1.3em;
+  }
+
+  th, td {
+    padding: 6px 8px;
+  }
+
+  button.delete-btn {
+    padding: 3px 6px;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<h1>Messages</h1>
+
+<table id="messagesTable">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Message</th>
+      <th>Time (GMT)</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getFirestore, collection, getDocs, deleteDoc, doc, enableIndexedDbPersistence 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Enable offline persistence
+enableIndexedDbPersistence(db).catch((err) => console.warn("Offline persistence error:", err.code));
+
+const messagesTable = document.querySelector("#messagesTable tbody");
+
+// Load all messages in descending order (most recent first)
+const loadMessages = async () => {
+  messagesTable.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+  const snapshot = await getDocs(collection(db, "messages"));
+  const messages = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a,b) => {
+      if(!a.timestamp || !b.timestamp) return 0;
+      return b.timestamp.toMillis() - a.timestamp.toMillis();
+    });
+
+  messagesTable.innerHTML = "";
+  messages.forEach(msg => {
+    const { id, name, email, message, timestamp } = msg;
+    let timeStr = timestamp?.toDate ? timestamp.toDate().toUTCString() : "N/A";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${name}</td>
+      <td><a href="mailto:${email}">${email}</a></td>
+      <td>${message}</td>
+      <td>${timeStr}</td>
+      <td><button class="delete-btn">Delete</button></td>
+    `;
+    tr.querySelector(".delete-btn").addEventListener("click", async () => {
+      if(confirm("Delete this message?")) {
+        await deleteDoc(doc(db, "messages", id));
+        tr.remove();
+      }
+    });
+    messagesTable.appendChild(tr);
+  });
+
+  if(messages.length===0) messagesTable.innerHTML = "<tr><td colspan='5'>No messages found.</td></tr>";
+};
+
+// Initial load
+loadMessages();
+</script>
+
+</body>
+</html>

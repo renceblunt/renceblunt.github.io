@@ -6,6 +6,7 @@
   <title>Poem | Rence Blunt Poetry</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <!-- Navbar -->
   <nav class="navbar">
@@ -13,11 +14,11 @@
     <div class="menu-toggle" id="menu-toggle">☰</div>
     <div class="nav-links" id="nav-links">
       <a href="index.html">Home</a>
-           <a href="poems.html">Poems</a>
+      <a href="poems.html">Poems</a>
       <a href="poemslink.html" class="active">Links</a>
       <a href="about.html">About</a>
       <a href="contact.html">Contact</a>
-      <a href="poemslink.html">Back</a> <!-- Back link added -->
+      <a href="poemslink.html">Back</a>
     </div>
   </nav>
 
@@ -27,20 +28,27 @@
       <h3 id="poem-title">Loading...</h3>
       <p id="poem-content"></p>
       <span class="author" id="poem-author"></span>
+
+      <!-- Like, Message Count, Comment Input Inline -->
+      <div class="poem-actions-horizontal" style="display:flex; align-items:center; gap:10px; margin-top:10px;">
+        <button class="like-btn" id="like-btn">❤️ <span id="like-count">0</span></button>
+        <button class="message-count" id="message-count">💬 0</button>
+        <div class="comment-section-inline" style="display:flex; gap:5px; align-items:center;">
+          <input type="text" id="comment-input" placeholder="Write a comment..." />
+          <button class="comment-btn" id="comment-btn">Post</button>
+        </div>
+      </div>
+
+      <!-- Comment List (collapsed by default) -->
+      <div class="comment-list" id="comment-list" style="display:none; margin-top:10px;"></div>
     </div>
   </section>
-
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="footer-container">
-      <p>&copy; 2025 Rence Blunt. All rights reserved.</p>
-    </div>
-  </footer>
 
   <!-- Firebase + Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, doc, getDoc, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, arrayUnion, increment, enableIndexedDbPersistence, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
@@ -53,6 +61,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
     enableIndexedDbPersistence(db).catch(err => console.warn("Persistence error:", err.code));
 
@@ -62,42 +71,150 @@
     const titleEl = document.getElementById("poem-title");
     const contentEl = document.getElementById("poem-content");
     const authorEl = document.getElementById("poem-author");
+    const likeBtn = document.getElementById("like-btn");
+    const likeCountEl = document.getElementById("like-count");
+    const commentInput = document.getElementById("comment-input");
+    const commentBtn = document.getElementById("comment-btn");
+    const commentList = document.getElementById("comment-list");
+    const messageCountEl = document.getElementById("message-count");
 
-    async function loadPoem(id) {
-      if (!id) {
-        titleEl.textContent = "Poem not found";
-        return;
-      }
-      const docRef = doc(db, "recentPoems", id);
+    let currentUser = null;
+
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+      loadPoem(poemId);
+    });
+
+    async function loadPoem(id){
+      if(!id){ titleEl.textContent="Poem not found"; return; }
+      const docRef = doc(db,"recentPoems",id);
       const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
+      if(docSnap.exists()){
         const data = docSnap.data();
         titleEl.textContent = data.title || "Untitled";
-        contentEl.innerHTML = data.content.replace(/\n/g, "<br>");
+        contentEl.innerHTML = data.content.replace(/\n/g,"<br>");
         authorEl.textContent = data.author ? `– ${data.author}` : "";
+        likeCountEl.textContent = typeof data.likes==="number"?data.likes:0;
+        if(currentUser && Array.isArray(data.likedBy) && data.likedBy.includes(currentUser.uid)){
+          likeBtn.classList.add("liked");
+        } else {
+          likeBtn.classList.remove("liked");
+        }
+        loadCommentsCount();
       } else {
-        titleEl.textContent = "Poem not found";
-        contentEl.textContent = "";
-        authorEl.textContent = "";
+        titleEl.textContent="Poem not found";
+        contentEl.textContent="";
+        authorEl.textContent="";
       }
     }
 
-    loadPoem(poemId);
+    // ---------------- Like ----------------
+    likeBtn.addEventListener("click", async () => {
+      if(!currentUser){ alert("Sign in to like!"); return; }
+      const docRef = doc(db,"recentPoems",poemId);
+      const docSnap = await getDoc(docRef);
+      if(!docSnap.exists()) return;
+      const data = docSnap.data();
+      let likes = typeof data.likes==="number"?data.likes:0;
+      const likedBy = Array.isArray(data.likedBy)?data.likedBy:[];
+
+      if(likedBy.includes(currentUser.uid)){
+        await updateDoc(docRef,{ likes: increment(-1), likedBy: likedBy.filter(uid=>uid!==currentUser.uid) });
+        likeCountEl.textContent = likes-1;
+        likeBtn.classList.remove("liked");
+      } else {
+        await updateDoc(docRef,{ likes: increment(1), likedBy: arrayUnion(currentUser.uid) });
+        likeCountEl.textContent = likes+1;
+        likeBtn.classList.add("liked");
+      }
+    });
+// ---------------- Comment Post ----------------
+commentBtn.addEventListener("click", async () => {
+  if (!currentUser) { 
+    alert("Sign in to comment!"); 
+    return; 
+  }
+
+  const text = commentInput.value.trim();
+  if (!text) return;
+
+  try {
+    // Add comment to Firestore
+    await addDoc(collection(db, "recentPoems", poemId, "comments"), {
+      userId: currentUser.uid,
+      text,
+      timestamp: new Date()
+    });
+
+    commentInput.value = "";
+
+    // Get username
+    let username = currentUser.email;
+    const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+    if (userDoc.exists()) username = userDoc.data().username || currentUser.email;
+
+    // Create comment element
+    const div = document.createElement("div");
+    div.className = "comment";
+    div.textContent = `${username}: ${text}`;
+
+    // Prepend so newest comment is on top
+    commentList.prepend(div);
+    commentList.style.display = "block";
+
+    // Update comment count
+    const snapshot = await getDocs(collection(db, "recentPoems", poemId, "comments"));
+    messageCountEl.textContent = `💬 ${snapshot.size}`;
+
+  } catch (err) {
+    console.error("Error posting comment:", err);
+  }
+});
+
+// ---------------- Load Comments Count ----------------
+async function loadCommentsCount() {
+  const q = query(collection(db, "recentPoems", poemId, "comments"), orderBy("timestamp", "desc"));
+  const snapshot = await getDocs(q);
+  messageCountEl.textContent = `💬 ${snapshot.size}`;
+  commentList.style.display = "none"; // collapsed by default
+}
+
+// ---------------- Toggle Comments ----------------
+messageCountEl.addEventListener("click", async () => {
+  if (commentList.style.display === "block") {
+    commentList.style.display = "none";
+    return;
+  }
+
+  commentList.innerHTML = "";
+  const q = query(collection(db, "recentPoems", poemId, "comments"), orderBy("timestamp", "desc"));
+  const snapshot = await getDocs(q);
+
+  for (const docSnap of snapshot.docs) {
+    const c = docSnap.data();
+    let username = "Anonymous";
+    if (c.userId) {
+      const userDoc = await getDoc(doc(db, "users", c.userId));
+      if (userDoc.exists()) username = userDoc.data().username || "Anonymous";
+    }
+    const div = document.createElement("div");
+    div.className = "comment";
+    div.textContent = `${username}: ${c.text}`;
+    commentList.appendChild(div);
+  }
+
+  commentList.style.display = "block";
+});
+
   </script>
 
   <!-- Navbar toggle -->
   <script>
     const toggle = document.getElementById("menu-toggle");
     const navLinks = document.getElementById("nav-links");
-
-    toggle.addEventListener("click", () => {
-      navLinks.classList.toggle("show");
-    });
-
-    navLinks.querySelectorAll("a").forEach(link => {
-      link.addEventListener("click", () => navLinks.classList.remove("show"));
-    });
+    toggle.addEventListener("click",()=>navLinks.classList.toggle("show"));
+    navLinks.querySelectorAll("a").forEach(link=>link.addEventListener("click",()=>navLinks.classList.remove("show")));
   </script>
 </body>
 </html>
+
