@@ -22,15 +22,21 @@ enableIndexedDbPersistence(db).catch((err) => {
   console.warn("Offline persistence error:", err.code);
 });
 
-// Sidebar navigation
+// --- Sidebar and Sections ---
 const links = document.querySelectorAll(".sidebar nav a");
 const sections = document.querySelectorAll(".form-section");
+
+const hideAllSections = () => {
+  sections.forEach(sec => sec.classList.add("hidden"));
+};
+
+// Sidebar link click handler
 links.forEach(link => {
   link.addEventListener("click", e => {
     e.preventDefault();
     links.forEach(l => l.classList.remove("active"));
     link.classList.add("active");
-    sections.forEach(sec => sec.classList.add("hidden"));
+    hideAllSections();
     const target = document.getElementById(link.dataset.section);
     if(target) target.classList.remove("hidden");
   });
@@ -59,7 +65,6 @@ const loadAdmins = async () => {
   });
 };
 
-// Add Admin
 addAdminForm.addEventListener("submit", async e => {
   e.preventDefault();
   const email = addAdminForm.querySelector("input").value;
@@ -109,30 +114,41 @@ messagesSection.innerHTML = `
     <tbody></tbody>
   </table>
 `;
-document.querySelector("main").appendChild(messagesSection);
+
+// Insert Messages section **after Users section**
+const usersSection = document.getElementById("usersTable").closest(".form-section");
+usersSection.parentNode.insertBefore(messagesSection, usersSection.nextSibling);
 
 const messagesTable = messagesSection.querySelector("tbody");
 
 const loadMessages = async () => {
   messagesTable.innerHTML = "";
   const snapshot = await getDocs(collection(db, "messages"));
-  snapshot.forEach(docItem => {
-    const { name, email, message, timestamp } = docItem.data();
+
+  const messages = snapshot.docs
+    .map(docItem => ({ id: docItem.id, ...docItem.data() }))
+    .sort((a, b) => {
+      if (!a.timestamp || !b.timestamp) return 0;
+      return b.timestamp.toMillis() - a.timestamp.toMillis();
+    });
+
+  messages.forEach(msg => {
+    const { name, email, message, timestamp, id } = msg;
     let timeStr = "N/A";
     if (timestamp && timestamp.toDate) {
-      timeStr = timestamp.toDate().toUTCString(); // Convert to GMT
+      timeStr = timestamp.toDate().toUTCString();
     }
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${name}</td>
-      <td>${email}</td>
+      <td><a href="mailto:${email}">${email}</a></td>
       <td>${message}</td>
       <td>${timeStr}</td>
       <td><button class="delete-btn">Delete</button></td>
     `;
     tr.querySelector(".delete-btn").addEventListener("click", async () => {
       if(confirm("Delete this message?")) {
-        await deleteDoc(doc(db, "messages", docItem.id));
+        await deleteDoc(doc(db, "messages", id));
         tr.remove();
       }
     });
@@ -140,23 +156,26 @@ const loadMessages = async () => {
   });
 };
 
-// Add "Messages" link in sidebar
+// --- Add single "Messages" link at bottom of sidebar ---
+const sidebarNav = document.querySelector(".sidebar nav");
 const msgLink = document.createElement("a");
 msgLink.href = "#";
 msgLink.dataset.section = "manageMessages";
 msgLink.textContent = "Messages";
-document.querySelector(".sidebar nav").prepend(msgLink);
+sidebarNav.appendChild(msgLink);
 
+// Handle Messages click
 msgLink.addEventListener("click", e => {
   e.preventDefault();
   links.forEach(l => l.classList.remove("active"));
   msgLink.classList.add("active");
-  sections.forEach(sec => sec.classList.add("hidden"));
+  hideAllSections();
   messagesSection.classList.remove("hidden");
   loadMessages();
 });
 
-// Initial load
+// --- Initial load ---
 loadAdmins();
 loadUsers();
 loadMessages();
+

@@ -376,3 +376,108 @@ form input {
   color: #888;
 }
 
+
+/* Hide sidebar on small screens */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 60px; /* below navbar */
+    height: calc(100% - 60px);
+    transform: translateX(-100%); /* hidden by default */
+    z-index: 1000;
+    background: #f8f8f8;
+    padding: 20px;
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+  }
+
+  .sidebar.show {
+    transform: translateX(0); /* slide in */
+  }
+
+  /* Dim the rest of the page when sidebar is open */
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 60px);
+    background: rgba(0,0,0,0.3);
+    z-index: 900;
+  }
+
+  .overlay.show {
+    display: block;
+  }
+
+  /* Layout adjustment for small screens */
+  .admin-layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  main.content {
+    margin-left: 0;
+    padding: 15px;
+  }
+}
+
+/* Sidebar toggle button */
+.sidebar-toggle {
+  display: none; /* hidden on large screens */
+  position: fixed;
+  top: 70px;       /* below navbar */
+  left: 15px;      /* left side */
+  z-index: 1200;
+  font-size: 2rem;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Show toggle only on small screens */
+@media (max-width: 768px) {
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 60px;
+    height: calc(100% - 60px);
+    transform: translateX(-100%);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  /* Optional: dim rest of page */
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 60px);
+    background: rgba(0,0,0,0.3);
+    z-index: 900;
+  }
+
+  .overlay.show {
+    display: block;
+  }
+
+  main.content {
+    margin-left: 0;
+    padding: 15px;
+  }
+}
