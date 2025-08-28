@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poems Link | Rence Blunt Poetry</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="description" content="Browse all poems by Rence Blunt. Search poems by title or author, view their details and enjoy poetry online.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://renceblunt.github.io/poemslink.html">
+
+  <style>
+    /* Navbar styles */
+    .logo {
+      color: #cccccc;
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+
+    .nav-links a {
+      color: #cccccc;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+      transition: color 0.3s, border-bottom 0.3s;
+    }
+
+    .nav-links a.active {
+      color: #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+      border-bottom: 2px solid #fff;
+    }
+
+    .menu-toggle {
+      display: none;
+      font-size: 2rem;
+      color: #cccccc;
+      cursor: pointer;
+      z-index: 1100;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        background: #222;
+        position: absolute;
+        top: 60px;
+        right: 0;
+        width: 200px;
+        padding: 15px;
+        border-radius: 0 0 0 10px;
+      }
+      .nav-links.show {
+        display: flex;
+      }
+      .menu-toggle {
+        display: block;
+      }
+    }
+
+    /* Header container with search */
+    .header-container {
+      max-width: 900px;
+      margin: 100px auto 30px auto; /* push down from navbar */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin: 0;
+      color: #4b3f2f;
+      margin-left: 10px; /* slightly to the right */
+    }
+
+    #poem-search {
+      padding: 4px 12px;
+      font-size: 0.9rem;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      outline: none;
+      width: 180px;
+      transition: all 0.2s ease;
+    }
+
+    #poem-search:focus {
+      border-color: #888;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    }
+
+    /* Poem links container */
+    #poem-links-container {
+      max-width: 900px;
+      margin: 0 auto 50px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 0 10px;
+    }
+
+    .poem-link-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      background: #fff;
+      padding: 8px 10px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .poem-link-item:hover {
+      background: #f1f1f1;
+    }
+
+    .poem-link-item img.poem-thumbnail {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .poem-link-item a {
+      font-size: 1.1rem;
+      color: #4b3f2f;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .poem-link-item a:hover {
+      text-decoration: underline;
+    }
+
+    .poem-link-author {
+      font-style: italic;
+      color: #555;
+      font-size: 0.95rem;
+      margin-left: 10px;
+    }
+
+    .offline-notice {
+      background: #ffcc00;
+      color: #000;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 6px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .header-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      #poem-search {
+        width: 140px;
+      }
+
+      #poem-links-container {
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+
+      .poem-link-item {
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">Rence Blunt Poetry</div>
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html">Home</a>
+      <a href="poems.html">Poems</a>
+      <a href="poemslink.html" class="active">Links</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
+
+  <div class="header-container">
+    <h1>Links</h1>
+    <input type="text" id="poem-search" placeholder="Search poems or authors..." />
+  </div>
+
+  <div id="offline-notice" class="offline-notice" style="display:none;">
+    ⚠ You are offline. Showing cached poems.
+  </div>
+
+  <div id="poem-links-container">
+    <p>Loading poems...</p>
+  </div>
+
+  <!-- Firebase + Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.appspot.com",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    enableIndexedDbPersistence(db).catch(err => console.warn("Persistence error:", err.code));
+
+    const container = document.getElementById("poem-links-container");
+    const searchInput = document.getElementById("poem-search");
+    const offlineNotice = document.getElementById("offline-notice");
+
+    window.addEventListener("offline", () => { offlineNotice.style.display = "block"; });
+    window.addEventListener("online", () => { offlineNotice.style.display = "none"; });
+
+    let poems = [];
+    const colRef = collection(db, "recentPoems");
+
+    onSnapshot(colRef, (snapshot) => {
+      poems = snapshot.docs.map(docItem => ({ id: docItem.id, ...docItem.data() }));
+      renderPoems(poems);
+    });
+
+    function renderPoems(list) {
+      container.innerHTML = "";
+      if(list.length === 0) {
+        container.innerHTML = "<p>No poems found.</p>";
+        return;
+      }
+      list.sort((a,b) => a.title.localeCompare(b.title));
+      list.forEach(poem => {
+        const div = document.createElement("div");
+        div.className = "poem-link-item";
+
+        const img = document.createElement("img");
+        img.className = "poem-thumbnail";
+      img.src = poem.image || 'images/link.jpg';
+
+        img.alt = poem.title;
+        div.appendChild(img);
+
+        const link = document.createElement("a");
+        link.href = `poem.html?id=${poem.id}`;
+        link.textContent = poem.title;
+        div.appendChild(link);
+
+        if(poem.author){
+          const author = document.createElement("span");
+          author.className = "poem-link-author";
+          author.textContent = `by ${poem.author}`;
+          div.appendChild(author);
+        }
+
+        container.appendChild(div);
+      });
+    }
+
+    searchInput.addEventListener("input", (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = poems.filter(poem => 
+        poem.title.toLowerCase().includes(query) || 
+        (poem.author && poem.author.toLowerCase().includes(query))
+      );
+      renderPoems(filtered);
+    });
+  </script>
+
+  <!-- Navbar toggle -->
+  <script>
+    const toggle = document.getElementById("menu-toggle");
+    const navLinks = document.getElementById("nav-links");
+    toggle.addEventListener("click", () => navLinks.classList.toggle("show"));
+    navLinks.querySelectorAll("a").forEach(link => link.addEventListener("click", () => navLinks.classList.remove("show")));
+  </script>
+  <script>list.forEach(poem => {
+  const div = document.createElement("div");
+  div.className = "poem-link-item";
+
+  const img = document.createElement("img");
+  img.className = "poem-thumbnail";
+  img.src = poem.image || 'images/link.jpg';
+  img.alt = poem.title;
+  div.appendChild(img);
+
+  const link = document.createElement("a");
+  link.href = `poem.html?id=${poem.id}`;
+  link.textContent = poem.title;
+  div.appendChild(link);
+
+  if(poem.author){
+    const author = document.createElement("span");
+    author.className = "poem-link-author";
+    author.textContent = `by ${poem.author}`;
+    div.appendChild(author);
+  }
+
+  // Add structured data for SEO
+  const script = document.createElement("script");
+  script.type = "application/ld+json";
+  script.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    "name": poem.title,
+    "author": {
+      "@type": "Person",
+      "name": poem.author || "Unknown"
+    },
+    "image": poem.image || "https://yourwebsite.com/images/link.jpg",
+    "url": `https://yourwebsite.com/poem.html?id=${poem.id}`
+  });
+  div.appendChild(script);
+
+  container.appendChild(div);
+});
+</script>
+</body>
+</html>

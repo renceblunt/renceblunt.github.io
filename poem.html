@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poem | Rence Blunt Poetry</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">Rence Blunt</div>
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+    <div class="nav-links" id="nav-links">
+      <a href="index.html">Home</a>
+           <a href="poems.html">Poems</a>
+      <a href="poemslink.html" class="active">Links</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+      <a href="poemslink.html">Back</a> <!-- Back link added -->
+    </div>
+  </nav>
+
+  <!-- Poem Section -->
+  <section class="recent-poems-section">
+    <div id="poem-container" class="recent-poem-card">
+      <h3 id="poem-title">Loading...</h3>
+      <p id="poem-content"></p>
+      <span class="author" id="poem-author"></span>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <p>&copy; 2025 Rence Blunt. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Firebase + Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.appspot.com",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    enableIndexedDbPersistence(db).catch(err => console.warn("Persistence error:", err.code));
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const poemId = urlParams.get("id");
+
+    const titleEl = document.getElementById("poem-title");
+    const contentEl = document.getElementById("poem-content");
+    const authorEl = document.getElementById("poem-author");
+
+    async function loadPoem(id) {
+      if (!id) {
+        titleEl.textContent = "Poem not found";
+        return;
+      }
+      const docRef = doc(db, "recentPoems", id);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        titleEl.textContent = data.title || "Untitled";
+        contentEl.innerHTML = data.content.replace(/\n/g, "<br>");
+        authorEl.textContent = data.author ? `– ${data.author}` : "";
+      } else {
+        titleEl.textContent = "Poem not found";
+        contentEl.textContent = "";
+        authorEl.textContent = "";
+      }
+    }
+
+    loadPoem(poemId);
+  </script>
+
+  <!-- Navbar toggle -->
+  <script>
+    const toggle = document.getElementById("menu-toggle");
+    const navLinks = document.getElementById("nav-links");
+
+    toggle.addEventListener("click", () => {
+      navLinks.classList.toggle("show");
+    });
+
+    navLinks.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => navLinks.classList.remove("show"));
+    });
+  </script>
+</body>
+</html>
