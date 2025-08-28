@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password | Silent Depth</title>
+  <link rel="stylesheet" href="usersaccount.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Forgot Password</h2>
+
+    <form id="forgot-form" class="auth-form">
+      <label for="forgot-email">Email</label>
+      <input type="email" id="forgot-email" placeholder="Enter your email" required>
+
+      <button type="submit" class="btn-primary">Reset Password</button>
+    </form>
+
+    <p id="forgot-status" class="status"></p>
+
+    <div class="links">
+      <p>Remembered your password? <a href="users-login.html">Login here</a></p>
+    </div>
+  </div>
+
+  <!-- Firebase JS -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { 
+      getAuth, fetchSignInMethodsForEmail, sendPasswordResetEmail 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { 
+      getFirestore, collection, query, where, getDocs 
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // 🔹 Your Firebase config (replace with your own values)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Forgot Password Logic
+    const forgotForm = document.getElementById("forgot-form");
+    if (forgotForm) {
+      forgotForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("forgot-email").value.trim();
+        const status = document.getElementById("forgot-status");
+
+        try {
+          // 🔹 Check if email exists in Firestore
+          const q = query(collection(db, "users"), where("email", "==", email));
+          const querySnapshot = await getDocs(q);
+
+          if (querySnapshot.empty) {
+            status.textContent = "⚠ No account found with this email.";
+            status.style.color = "red";
+            return;
+          }
+
+          // 🔹 Check if email is verified
+          const methods = await fetchSignInMethodsForEmail(auth, email);
+          if (methods.length === 0) {
+            status.textContent = "⚠ Email is not registered.";
+            status.style.color = "red";
+            return;
+          }
+
+          const userDoc = querySnapshot.docs[0].data();
+          if (!userDoc.emailVerified) {
+            status.textContent = "⚠ Please verify your email before resetting password.";
+            status.style.color = "red";
+            return;
+          }
+
+          // 🔹 Send password reset
+          await sendPasswordResetEmail(auth, email);
+          status.textContent = "✅ Password reset email sent! Check your inbox.";
+          status.style.color = "green";
+        } catch (error) {
+          status.textContent = "⚠ " + error.message;
+          status.style.color = "red";
+        }
+      });
+    }
+  </script>
+</body>
+</html>

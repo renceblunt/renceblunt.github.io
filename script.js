@@ -4,7 +4,7 @@ import {
 
 import { 
   getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc, 
-  enableIndexedDbPersistence, startAfter 
+  enableIndexedDbPersistence, startAfter, updateDoc, increment, addDoc 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Firebase config
@@ -66,7 +66,7 @@ function truncatePoem(text, lines = 8) {
   };
 }
 
-// Load poems with pagination
+// Load poems with pagination + likes/comments
 async function loadRecentPoems(initial = false) {
   if (reachedEnd) return;
 
@@ -91,20 +91,35 @@ async function loadRecentPoems(initial = false) {
 
     snapshot.docs.forEach(docSnap => {
       const poem = docSnap.data();
+      const docId = docSnap.id;
       const card = document.createElement("div");
       card.className = "recent-poem-card";
+      card.setAttribute("data-id", docId);
 
       const truncated = truncatePoem(poem.content, 8);
+      const likes = poem.likes || 0;
 
       card.innerHTML = `
         <h3>${poem.title}</h3>
         <p class="poem-content">${truncated.preview}</p>
         ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
         ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
+        
+        <div class="poem-actions">
+          <button class="like-btn">❤️</button> 
+          <span class="like-count">${likes}</span>
+        </div>
+        
+        <div class="comment-section">
+          <input type="text" class="comment-input" placeholder="Write a comment..." />
+          <button class="comment-btn">Post</button>
+        </div>
+        <div class="comment-list"></div>
       `;
 
       container.appendChild(card);
 
+      // Read more toggle
       if (truncated.truncated) {
         const btn = card.querySelector(".read-more-btn");
         const p = card.querySelector(".poem-content");
@@ -118,6 +133,12 @@ async function loadRecentPoems(initial = false) {
           }
         });
       }
+
+      // Highlight liked poems
+      const likedPoems = JSON.parse(localStorage.getItem("likedPoems") || "[]");
+      if (likedPoems.includes(docId)) {
+        card.querySelector(".like-btn").classList.add("liked");
+      }
     });
 
     lastVisible = snapshot.docs[snapshot.docs.length - 1];
@@ -130,6 +151,71 @@ async function loadRecentPoems(initial = false) {
     console.error("Error fetching recent poems:", err);
   }
 }
+
+// ✅ Like handler (toggle on/off)
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("like-btn")) {
+    const card = e.target.closest(".recent-poem-card");
+    const docId = card.getAttribute("data-id");
+    const countSpan = card.querySelector(".like-count");
+
+    let likedPoems = JSON.parse(localStorage.getItem("likedPoems") || "[]");
+
+    if (likedPoems.includes(docId)) {
+      // Unlike
+      await updateDoc(doc(db, "recentPoems", docId), {
+        likes: increment(-1)
+      });
+
+      countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1);
+
+      likedPoems = likedPoems.filter(id => id !== docId);
+      localStorage.setItem("likedPoems", JSON.stringify(likedPoems));
+
+      e.target.classList.remove("liked");
+    } else {
+      // Like
+      await updateDoc(doc(db, "recentPoems", docId), {
+        likes: increment(1)
+      });
+
+      countSpan.textContent = parseInt(countSpan.textContent) + 1;
+
+      likedPoems.push(docId);
+      localStorage.setItem("likedPoems", JSON.stringify(likedPoems));
+
+      e.target.classList.add("liked");
+    }
+  }
+
+  // ✅ Comment handler
+  if (e.target.classList.contains("comment-btn")) {
+    const card = e.target.closest(".recent-poem-card");
+    const docId = card.getAttribute("data-id");
+    const input = card.querySelector(".comment-input");
+    const commentList = card.querySelector(".comment-list");
+
+    const text = input.value.trim();
+    if (!text) return;
+
+    try {
+      await addDoc(collection(db, "recentPoems", docId, "comments"), {
+        text,
+        timestamp: new Date()
+      });
+
+      // Append instantly to UI
+      const div = document.createElement("div");
+      div.className = "comment";
+      div.textContent = text;
+      commentList.appendChild(div);
+
+      input.value = "";
+    } catch (err) {
+      console.error("Error posting comment:", err);
+    }
+  }
+});
 
 // Offline/online notice
 function setupOfflineNotice() {
@@ -190,5 +276,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
-
-

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up | Silent Depth</title>
+  <link rel="stylesheet" href="usersaccount.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Create Account</h2>
+
+    <form id="signup-form" class="auth-form">
+      <label for="signup-username">Username</label>
+      <input type="text" id="signup-username" placeholder="Choose a username" required>
+
+      <label for="signup-email">Email</label>
+      <input type="email" id="signup-email" placeholder="Enter email" required>
+
+      <label for="signup-password">Password</label>
+      <input type="password" id="signup-password" placeholder="Enter password" required>
+
+      <button type="submit" class="btn-primary">Sign Up</button>
+    </form>
+
+    <p id="signup-status" class="status"></p>
+
+    <div class="links">
+      <p>Already have an account? <a href="users-login.html">Login here</a></p>
+    </div>
+  </div>
+
+  <!-- Firebase Auth JS -->
+  <script type="module" src="usersAccount.js"></script>
+</body>
+</html>

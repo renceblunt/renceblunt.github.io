@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile | Silent Depth</title>
+  <link rel="stylesheet" href="usersaccount.css">
+</head>
+<body>
+  <div class="container">
+    <h2>User Profile</h2>
+
+    <div id="user-info" class="profile-card">
+      <p><strong>Username:</strong> <span id="profile-username"></span></p>
+      <p><strong>Email:</strong> <span id="profile-email"></span></p>
+      <p><strong>Email Verified:</strong> <span id="profile-verified"></span></p>
+    </div>
+
+    <button id="logout-btn" class="logout-btn">Logout</button>
+    <p id="logout-status"></p>
+  </div>
+
+  <!-- Firebase Auth JS -->
+  <script type="module">
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { app } from "./usersAccount.js"; // ✅ reuse firebase init
+
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Listen for auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Fetch username from Firestore
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          document.getElementById("profile-username").textContent = docSnap.data().username;
+        }
+        document.getElementById("profile-email").textContent = user.email;
+        document.getElementById("profile-verified").textContent = user.emailVerified ? "Yes" : "No";
+      } else {
+        // Not logged in → redirect to login
+        window.location.href = "users-login.html";
+      }
+    });
+
+    // Logout
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        document.getElementById("logout-status").textContent = "✅ Logged out.";
+        window.location.href = "users-login.html";
+      } catch (err) {
+        document.getElementById("logout-status").textContent = "⚠ " + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
