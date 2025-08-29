@@ -72,100 +72,96 @@ main.content { flex: 1; padding: 20px; }
 </style>
 </head>
 <body>
+<!-- Page content hidden until admin auth check -->
+<div id="admin-dashboard" style="display:none;">
 
-<!-- Navbar -->
-<nav class="navbar">
-  <div class="logo">Rence Blunt Poetry</div>
-  <div class="menu-toggle" id="menu-toggle">☰</div>
-  <div class="nav-links" id="nav-links">
-    <a href="admin.html" class="active">1st Admin Panel</a>
-  <a href="3 admin-panel.html">2rd Admin Panel</a>
-    <a href="index.html">Home</a>
-  </div>
-</nav>
-
-<!-- Sidebar toggle -->
-<button id="sidebar-toggle">☰</button>
-
-<div class="admin-layout">
-  <aside class="sidebar">
-    <div class="primary-sidebar">
-      <h2>Add Verses</h2>
-      <nav>
-        <a href="#" class="active" data-section="poemForm">Add Poem</a>
-        <a href="#" data-section="quoteForm">Add Quote</a>
-        <a href="#" data-section="recentPoemForm">Add Recent Poem</a>
-      </nav>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">Rence Blunt Poetry</div>
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+    <div class="nav-links" id="nav-links">
+      <a href="admin.html" class="active">1st Admin Panel</a>
+      <a href="3 admin-panel.html">2nd Admin Panel</a>
+      <a href="index.html">Home</a>
     </div>
-  </aside>
+  </nav>
 
-  <main class="content">
-    <h1>1st Admin Panel</h1>
-    
-    <!-- Add Poem Form -->
-    <section id="poemForm" class="form-section">
-      <h2>Add New Poem</h2>
-      <form id="poemSubmitForm">
-        <label>Title:</label>
-        <input type="text" placeholder="Poem title" required />
-        <label>Content:</label>
-        <textarea rows="6" placeholder="Poem content..." required></textarea>
-        <label>Author:</label>
-        <input type="text" placeholder="Author name" />
-        <button type="submit">Submit Poem</button>
-        <p class="form-message"></p>
-      </form>
-    </section>
+  <!-- Sidebar toggle -->
+  <button id="sidebar-toggle">☰</button>
 
-    <!-- Add Quote Form -->
-    <section id="quoteForm" class="form-section hidden">
-      <h2>Add New Quote</h2>
-      <form id="quoteSubmitForm">
-        <label>Quote:</label>
-        <textarea rows="4" placeholder="Enter quote..." required></textarea>
-        <label>Author:</label>
-        <input type="text" placeholder="Author name" />
-        <button type="submit">Submit Quote</button>
-        <p class="form-message"></p>
-      </form>
-    </section>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="primary-sidebar">
+        <h2>Add Verses</h2>
+        <nav>
+          <a href="#" class="active" data-section="poemForm">Add Poem</a>
+          <a href="#" data-section="quoteForm">Add Quote</a>
+          <a href="#" data-section="recentPoemForm">Add Recent Poem</a>
+        </nav>
+      </div>
+    </aside>
 
-    <!-- Add Recent Poem Form -->
-<!-- Add Recent Poem Form -->
-<section id="recentPoemForm" class="form-section hidden">
-  <h2>Add Recent Poem</h2>
-  <form id="recentPoemSubmitForm">
-    <label>Title:</label>
-    <input type="text" name="title" placeholder="Recent poem title" required />
+    <main class="content">
+      <h1>1st Admin Panel</h1>
 
-    <label>Excerpt (optional):</label>
-    <textarea name="excerpt" rows="4" placeholder="Short excerpt of poem..."></textarea>
+      <!-- Add Poem Form -->
+      <section id="poemForm" class="form-section">
+        <h2>Add New Poem</h2>
+        <form id="poemSubmitForm">
+          <label>Title:</label>
+          <input type="text" placeholder="Poem title" required />
+          <label>Content:</label>
+          <textarea rows="6" placeholder="Poem content..." required></textarea>
+          <label>Author:</label>
+          <input type="text" placeholder="Author name" />
+          <button type="submit">Submit Poem</button>
+          <p class="form-message"></p>
+        </form>
+      </section>
 
-    <label>Full Content:</label>
-    <textarea name="content" rows="6" placeholder="Full poem content..." required></textarea>
+      <!-- Add Quote Form -->
+      <section id="quoteForm" class="form-section hidden">
+        <h2>Add New Quote</h2>
+        <form id="quoteSubmitForm">
+          <label>Quote:</label>
+          <textarea rows="4" placeholder="Enter quote..." required></textarea>
+          <label>Author:</label>
+          <input type="text" placeholder="Author name" />
+          <button type="submit">Submit Quote</button>
+          <p class="form-message"></p>
+        </form>
+      </section>
 
-    <label>Author:</label>
-    <input type="text" name="author" placeholder="Author name" />
+      <!-- Add Recent Poem Form -->
+      <section id="recentPoemForm" class="form-section hidden">
+        <h2>Add Recent Poem</h2>
+        <form id="recentPoemSubmitForm">
+          <label>Title:</label>
+          <input type="text" name="title" placeholder="Recent poem title" required />
+          <label>Excerpt (optional):</label>
+          <textarea name="excerpt" rows="4" placeholder="Short excerpt of poem..."></textarea>
+          <label>Full Content:</label>
+          <textarea name="content" rows="6" placeholder="Full poem content..." required></textarea>
+          <label>Author:</label>
+          <input type="text" name="author" placeholder="Author name" />
+          <label>Category (comma-separated):</label>
+          <input list="categories" name="category" placeholder="Choose or type category" required />
+          <datalist id="categories">
+            <option value="Love">
+            <option value="Life">
+            <option value="Nature">
+            <option value="Friendship">
+            <option value="Inspirational">
+            <option value="Other">
+          </datalist>
+          <button type="submit">Submit Recent Poem</button>
+          <p class="form-message"></p>
+        </form>
+      </section>
 
-    <!-- Flexible Category (multiple allowed, comma-separated) -->
-    <label>Category (comma-separated):</label>
-<input list="categories" name="category" placeholder="Choose or type category" required />
-    <datalist id="categories">
-      <option value="Love">
-      <option value="Life">
-      <option value="Nature">
-      <option value="Friendship">
-      <option value="Inspirational">
-      <option value="Other">
-    </datalist>
+    </main>
+  </div>
 
-    <button type="submit">Submit Recent Poem</button>
-    <p class="form-message"></p>
-  </form>
-</section>
-
-
-  </main>
 </div>
 
 <!-- Footer -->
@@ -182,16 +178,49 @@ main.content { flex: 1; padding: 20px; }
   </div>
 </footer>
 
-<script type="module" src="admin.js"></script>
-<script>
-// Sidebar toggle logic
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.firebasestorage.app",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543",
+  measurementId: "G-WSWDCB7KD8"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Admin authentication check
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const adminDoc = await getDoc(doc(db, "admins", user.uid));
+    if (adminDoc.exists()) {
+      // Admin logged in → show dashboard
+      document.getElementById("admin-dashboard").style.display = "block";
+    } else {
+      // Not an admin → redirect
+      window.location.href = "admin-login.html";
+    }
+  } else {
+    // Not logged in → redirect
+    window.location.href = "admin-login.html";
+  }
+});
+
+// Sidebar toggle
 const sidebarToggle = document.getElementById("sidebar-toggle");
 const sidebar = document.querySelector(".sidebar");
-
-sidebarToggle.addEventListener("click", () => {
-  sidebar.classList.toggle("show");
-});
+sidebarToggle?.addEventListener("click", () => sidebar.classList.toggle("show"));
 </script>
-
 </body>
 </html>
+

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Poem Drafts | Rence Blunt Poetry</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body { 
+  font-family: Arial, sans-serif; 
+  background: #fafafa; 
+  padding: 20px; 
+}
+
+h2 { 
+  text-align: center; 
+  margin-bottom: 20px; 
+}
+
+.draft-container {
+  max-width: 700px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+input, textarea, button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+button {
+  background: #007BFF;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover { 
+  background: #0056b3; 
+}
+
+.draft-list {
+  margin-top: 30px;
+  max-width: 600px; /* reduced width */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.draft-item {
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+}
+
+.draft-actions {
+  margin-top: 8px;
+}
+
+.draft-actions button {
+  width: auto;
+  margin-right: 8px;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+.edit-btn { 
+  background: #28a745; 
+  color: #fff; 
+}
+
+.delete-btn { 
+  background: #dc3545; 
+  color: #fff; 
+}
+
+/* Responsive for Small Screens */
+@media screen and (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  .draft-container,
+  .draft-list,
+  .editor-container {
+    width: 100%;
+    padding: 15px;
+    box-shadow: none;
+  }
+
+  .draft-list {
+    max-width: 100%; /* full width on small screens */
+  }
+
+  h2, h3 {
+    font-size: 1.5rem;
+  }
+
+  input, textarea, button {
+    font-size: 0.95rem;
+    padding: 8px;
+  }
+
+  .draft-actions button {
+    font-size: 0.85rem;
+    padding: 5px 8px;
+    margin-bottom: 6px;
+  }
+
+  .back-btn {
+    padding: 8px;
+    font-size: 0.95rem;
+  }
+}
+</style>
+
+</head>
+<body>
+
+<h2>Poem Drafts</h2>
+
+<div class="draft-container">
+  <h3>✍️ Write a New Draft</h3>
+  <input type="text" id="draft-title" placeholder="Poem Title">
+  <textarea id="draft-content" rows="8" placeholder="Write your poem here..."></textarea>
+  <button id="save-draft">Save Draft</button>
+</div>
+
+<div class="draft-list">
+  <h3>📂 Your Saved Drafts</h3>
+  <div id="drafts-container">Loading drafts...</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const titleInput = document.getElementById("draft-title");
+const contentInput = document.getElementById("draft-content");
+const saveBtn = document.getElementById("save-draft");
+const draftsContainer = document.getElementById("drafts-container");
+
+// Save new draft
+saveBtn.addEventListener("click", async () => {
+  const title = titleInput.value.trim();
+  const content = contentInput.value.trim();
+  if (!title || !content) return alert("Please enter both title and content.");
+
+  await addDoc(collection(db, "drafts"), {
+    title,
+    content,
+    createdAt: new Date().toISOString()
+  });
+
+  alert("Draft saved!");
+  titleInput.value = "";
+  contentInput.value = "";
+  loadDrafts();
+});
+
+// Load drafts
+async function loadDrafts() {
+  const snapshot = await getDocs(collection(db, "drafts"));
+  if (snapshot.empty) {
+    draftsContainer.innerHTML = "<p>No drafts yet.</p>";
+    return;
+  }
+
+  draftsContainer.innerHTML = "";
+  snapshot.forEach(docSnap => {
+    const draft = docSnap.data();
+    const div = document.createElement("div");
+    div.className = "draft-item";
+    div.innerHTML = `
+      <h4>${draft.title}</h4>
+      <p>${draft.content.replace(/\n/g, "<br>")}</p>
+      <div class="draft-actions">
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn">Delete</button>
+      </div>
+    `;
+
+    // Edit draft → open in full-page editor
+    div.querySelector(".edit-btn").addEventListener("click", () => {
+      window.location.href = `edit-draft.html?id=${docSnap.id}`;
+    });
+
+    // Delete draft
+    div.querySelector(".delete-btn").addEventListener("click", async () => {
+      if (confirm("Are you sure you want to delete this draft?")) {
+        await deleteDoc(doc(db, "drafts", docSnap.id));
+        loadDrafts();
+      }
+    });
+
+    draftsContainer.appendChild(div);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", loadDrafts);
+</script>
+
+</body>
+</html>

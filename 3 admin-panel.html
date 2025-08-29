@@ -168,15 +168,20 @@
       <a href="manage.html">Manage Poems</a>
       <a href="poem-dashboard.html">No of Likes & Comments</a>
       <a href="Manage-Likes.html">Clear Likes</a>
+       <a href="manage-categories.html">Manage Categories</a>
       <a href="all-users.html">Users & Delete</a>
+           <a href="administrators.html">Admins</a>
     </div>
     <div class="column">
       <h4>Column 2</h4>
       <a href="users-signup.html">Users Sign Up</a>
-      <a href="users-login.html">Users Logins</a>
+      <a href="users-login.html">Users Login</a>
+      <a href="admin-signup.html">Admin Sign Up</a>
+      <a href="admin-login.html">Admin Login</a>
     </div>
     <div class="column">
       <h4>Column 3</h4>
+        <a href="poemdraft.html">Drafts</a>
       <a href="messages.html">Messages</a>
     </div>
     <div class="column">
@@ -189,6 +194,7 @@
   </div>
 </div>
 
+  <script type="module" src="adminAuth.js"></script>
 <script>
   // Navbar toggle
   const navToggle = document.getElementById("menu-toggle");
@@ -208,6 +214,45 @@
     sidebar.classList.remove("show");
     overlay.classList.remove("show");
   });
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.firebasestorage.app",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543",
+  measurementId: "G-WSWDCB7KD8"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Admin authentication check
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const adminDoc = await getDoc(doc(db, "admins", user.uid));
+    if (adminDoc.exists()) {
+      // Admin logged in → show dashboard
+      document.getElementById("admin-dashboard").style.display = "block";
+    } else {
+      // Not an admin → redirect
+      window.location.href = "admin-login.html";
+    }
+  } else {
+    // Not logged in → redirect
+    window.location.href = "admin-login.html";
+  }
+});
 </script>
 
 </body>

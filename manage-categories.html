@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Manage Categories | Rence Blunt Poetry</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body { font-family: Arial, sans-serif; background:#fafafa; padding:20px; }
+h2 { text-align:center; margin-bottom:20px; }
+.categories-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  max-width: 600px;
+  margin: auto;
+}
+.categories-container li {
+  background: #fff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.category-name {
+  font-weight: 500;
+}
+.actions button {
+  margin-left: 6px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.edit-btn { background: #ffc107; color: #000; }
+.delete-btn { background: #dc3545; color: #fff; }
+.save-btn { background: #28a745; color: #fff; }
+.cancel-btn { background: #6c757d; color: #fff; }
+</style>
+</head>
+<body>
+
+<h2>Manage Categories</h2>
+<ul id="categories-container" class="categories-container">
+  <li>Loading categories...</li>
+</ul>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const container = document.getElementById("categories-container");
+
+async function loadAllCategories() {
+  const snapshot = await getDocs(collection(db, "recentPoems"));
+  const categoriesSet = new Set();
+
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+    if (Array.isArray(data.categories)) {
+      data.categories.forEach(cat => categoriesSet.add(cat));
+    }
+  });
+
+  const categories = Array.from(categoriesSet).sort((a,b) => a.localeCompare(b, 'en', {sensitivity: 'base'}));
+
+  container.innerHTML = "";
+
+  if (categories.length === 0) {
+    container.innerHTML = "<li>No categories found.</li>";
+    return;
+  }
+
+  categories.forEach(cat => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <span class="category-name">${cat}</span>
+      <div class="actions">
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn">Delete</button>
+      </div>
+    `;
+
+    // Edit logic
+    li.querySelector(".edit-btn").addEventListener("click", () => {
+      const span = li.querySelector(".category-name");
+      const oldName = span.textContent;
+      span.innerHTML = `<input type="text" value="${oldName}" style="padding:4px;">`;
+      const actions = li.querySelector(".actions");
+      actions.innerHTML = `
+        <button class="save-btn">Save</button>
+        <button class="cancel-btn">Cancel</button>
+      `;
+
+      // Save edit
+      actions.querySelector(".save-btn").addEventListener("click", async () => {
+        const newName = span.querySelector("input").value.trim();
+        if (!newName) return alert("Category name cannot be empty.");
+        if (newName === oldName) return location.reload();
+
+        const snap = await getDocs(collection(db, "recentPoems"));
+        for (let docSnap of snap.docs) {
+          const data = docSnap.data();
+          if (Array.isArray(data.categories) && data.categories.includes(oldName)) {
+            const updatedCats = data.categories.map(c => c === oldName ? newName : c);
+            await updateDoc(doc(db, "recentPoems", docSnap.id), { categories: updatedCats });
+          }
+        }
+        alert(`Category "${oldName}" renamed to "${newName}"`);
+        location.reload();
+      });
+
+      // Cancel edit
+      actions.querySelector(".cancel-btn").addEventListener("click", () => {
+        loadAllCategories();
+      });
+    });
+
+    // Delete logic
+    li.querySelector(".delete-btn").addEventListener("click", async () => {
+      if (!confirm(`Delete category "${cat}" from all poems?`)) return;
+
+      const snap = await getDocs(collection(db, "recentPoems"));
+      for (let docSnap of snap.docs) {
+        const data = docSnap.data();
+        if (Array.isArray(data.categories) && data.categories.includes(cat)) {
+          const updatedCats = data.categories.filter(c => c !== cat);
+          await updateDoc(doc(db, "recentPoems", docSnap.id), { categories: updatedCats });
+        }
+      }
+      alert(`Category "${cat}" deleted successfully.`);
+      location.reload();
+    });
+
+    container.appendChild(li);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", loadAllCategories);
+</script>
+
+</body>
+</html>

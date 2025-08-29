@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Edit Draft | Rence Blunt Poetry</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body { font-family: Arial, sans-serif; background:#fafafa; padding:20px; }
+h2 { text-align:center; margin-bottom:20px; }
+
+.editor-container {
+  max-width: 700px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+input, textarea, button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+button {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover { background: #1e7e34; }
+
+.back-btn {
+  background: #007BFF;
+  margin-bottom: 15px;
+}
+
+.back-btn:hover { background: #0056b3; }
+
+</style>
+</head>
+<body>
+
+<h2>Edit Draft</h2>
+
+<div class="editor-container">
+  <button class="back-btn" id="back-btn">← Back to Drafts</button>
+  <input type="text" id="draft-title" placeholder="Poem Title">
+  <textarea id="draft-content" rows="12" placeholder="Edit your poem here..."></textarea>
+  <button id="save-draft">Save Changes</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const titleInput = document.getElementById("draft-title");
+const contentInput = document.getElementById("draft-content");
+const saveBtn = document.getElementById("save-draft");
+const backBtn = document.getElementById("back-btn");
+
+// Get draft ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const draftId = urlParams.get("id");
+
+if (!draftId) {
+  alert("No draft specified.");
+  window.location.href = "drafts.html";
+}
+
+// Load draft data
+async function loadDraft() {
+  const draftRef = doc(db, "drafts", draftId);
+  const draftSnap = await getDoc(draftRef);
+
+  if (!draftSnap.exists()) {
+    alert("Draft not found.");
+    window.location.href = "drafts.html";
+    return;
+  }
+
+  const draft = draftSnap.data();
+  titleInput.value = draft.title || "";
+  contentInput.value = draft.content || "";
+}
+
+// Save updates
+saveBtn.addEventListener("click", async () => {
+  const title = titleInput.value.trim();
+  const content = contentInput.value.trim();
+  if (!title || !content) return alert("Please enter both title and content.");
+
+  const draftRef = doc(db, "drafts", draftId);
+  await updateDoc(draftRef, {
+    title,
+    content,
+    updatedAt: new Date().toISOString()
+  });
+
+  alert("Draft updated successfully!");
+  window.location.href = "drafts.html";
+});
+
+// Back button
+backBtn.addEventListener("click", () => {
+  window.location.href = "drafts.html";
+});
+
+document.addEventListener("DOMContentLoaded", loadDraft);
+</script>
+
+</body>
+</html>

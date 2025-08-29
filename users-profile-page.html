@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fafafa;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .profile-card {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      text-align: center;
+      width: 320px;
+    }
+
+    .profile-card img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+    }
+
+    .profile-card h2 {
+      margin: 5px 0;
+      font-size: 1.5rem;
+    }
+
+    .profile-card p {
+      color: #555;
+      margin: 3px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-card">
+    <img id="profile-img" src="default-avatar.png" alt="Profile Image">
+    <h2 id="username">Username</h2>
+    <p id="email">Email</p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const profileImg = document.getElementById("profile-img");
+    const usernameEl = document.getElementById("username");
+    const emailEl = document.getElementById("email");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userID = user.uid;
+
+        // Fetch username/email from your auth collection (replace "users_auth")
+        const userDoc = await getDoc(doc(db, "users_auth", userID));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          usernameEl.textContent = userData.username || "Anonymous";
+          emailEl.textContent = userData.email || user.email;
+        }
+
+        // Fetch profile image from users_images
+        const imgDoc = await getDoc(doc(db, "users_images", userID));
+        if (imgDoc.exists()) {
+          const imgData = imgDoc.data();
+          profileImg.src = imgData.profileImageURL || "default-avatar.png";
+        }
+      } else {
+        // Optionally redirect to login if not signed in
+        // window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

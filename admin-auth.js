@@ -1,13 +1,14 @@
-// Firebase imports
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+// Import Firebase modules
+import { initializeApp } from "firebase/app";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
 
-// Your config
+// Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
   authDomain: "silent-depth.firebaseapp.com",
   projectId: "silent-depth",
-  storageBucket: "silent-depth.appspot.com",
+  storageBucket: "silent-depth.firebasestorage.app",
   messagingSenderId: "78008755450",
   appId: "1:78008755450:web:3fd0f0f298a08820935543",
   measurementId: "G-WSWDCB7KD8"
@@ -16,27 +17,34 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Elements
-const emailEl = document.getElementById("email");
-const passwordEl = document.getElementById("password");
-const messageEl = document.getElementById("message");
+// Hide admin content initially
+document.addEventListener("DOMContentLoaded", () => {
+  const adminContent = document.getElementById("admin-dashboard");
+  if (adminContent) adminContent.style.display = "none";
 
-document.getElementById("signupBtn").addEventListener("click", async () => {
-  try {
-    await createUserWithEmailAndPassword(auth, emailEl.value, passwordEl.value);
-    messageEl.textContent = "✅ Sign up successful. Ask dev to mark you as Admin.";
-  } catch (err) {
-    messageEl.textContent = "❌ " + err.message;
-  }
-});
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      try {
+        const adminDocRef = doc(db, "admins", user.uid);
+        const adminSnap = await getDoc(adminDocRef);
 
-document.getElementById("loginBtn").addEventListener("click", async () => {
-  try {
-    await signInWithEmailAndPassword(auth, emailEl.value, passwordEl.value);
-    messageEl.textContent = "✅ Login successful!";
-    window.location.href = "admin.html"; // redirect to admin panel
-  } catch (err) {
-    messageEl.textContent = "❌ " + err.message;
-  }
+        if (adminSnap.exists()) {
+          // Show admin content
+          if (adminContent) adminContent.style.display = "block";
+        } else {
+          // Not an admin
+          alert("Access denied. Admins only.");
+          window.location.href = "admin-login.html";
+        }
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+        window.location.href = "admin-login.html";
+      }
+    } else {
+      // Not logged in
+      window.location.href = "admin-login.html";
+    }
+  });
 });
