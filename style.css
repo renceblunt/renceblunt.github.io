@@ -1071,3 +1071,153 @@ font-family: 'Lato', sans-serif;
   }
 }
 
+
+
+/* --- Responsive adjustment (small screens) --- */
+@media (max-width: 768px) {
+  /* Place username next to logo */
+  #user-display {
+    display: inline-block;
+    margin-left: 10px;
+    margin-right: 5px;
+  }
+
+  /* Optional dropdown arrow next to username */
+  #user-display::after {
+    content: " ▼";
+    font-size: 0.7rem;
+    margin-left: 3px;
+  }
+
+  /* Adjust dropdown positioning so it opens below username */
+  .user-dropdown {
+    margin-left: 0;
+  }
+}
+
+
+/* ---------- Poem Actions & Comments Styling ---------- */
+.recent-poem-card .poem-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px; /* space between elements */
+  margin-top: 10px;
+}
+
+.recent-poem-card .comment-section {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.recent-poem-card .comment-input {
+  flex: 1;
+  min-width: 120px; /* reduced width */
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fafafa;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.recent-poem-card .comment-input:focus {
+  border-color: #888;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.recent-poem-card .comment-btn,
+.recent-poem-card .like-btn,
+.recent-poem-card .show-comments-btn {
+  padding: 5px 8px; /* reduced padding */
+  cursor: pointer;
+  font-size: 0.85rem; /* smaller font */
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  transition: all 0.2s ease;
+}
+
+.recent-poem-card .comment-btn:hover,
+.recent-poem-card .like-btn:hover,
+.recent-poem-card .show-comments-btn:hover {
+  background-color: #eee;
+}
+
+.recent-poem-card .like-btn.liked {
+  background-color: #ffdddd;
+  border-color: #ff6666;
+}
+
+.recent-poem-card .show-comments-btn {
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+}
+
+.recent-poem-card .comment-list {
+  margin-top: 10px;
+  padding-left: 10px;
+  border-left: 2px solid #eee;
+  background-color: #fafafa;
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.recent-poem-card .comment-list .comment {
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee;
+}
+
+.recent-poem-card .comment-list .comment:last-child {
+  border-bottom: none;
+}
+
+.message-count {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.message-count:hover {
+  color: #960606;
+}
+
+/* ---------- Responsive adjustments for small screens ---------- */
+/* Small screen adjustments for Poem Actions */
+@media screen and (max-width: 600px) {
+  .recent-poem-card .poem-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;       /* don't wrap to next line */
+    align-items: center;
+    gap: 4px;               /* tight spacing */
+  }
+
+  .recent-poem-card .comment-input {
+    order: 1;
+    flex-grow: 1;           /* input expands to fill available space */
+    min-width: 150px;
+    padding: 3px 6px;
+    font-size: 0.8rem;
+  }
+
+  .recent-poem-card .comment-btn {
+    order: 2;
+    font-size: 0.75rem;
+    padding: 3px 6px;
+  }
+
+  .recent-poem-card .like-btn {
+    order: 3;
+    font-size: 0.75rem;
+    padding: 3px 6px;
+  }
+
+  .recent-poem-card .message-count {
+    order: 4;
+    font-size: 0.75rem;
+    padding: 3px 6px;
+  }
+}
