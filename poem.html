@@ -5,6 +5,203 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Poem | Rence Blunt Poetry</title>
   <link rel="stylesheet" href="style.css">
+  <style>/* ==================== Mobile Inline Actions ==================== */
+@media (max-width: 768px) {
+
+  /* Poem container */
+  #poem-container {
+    width: 95%;
+    padding: 12px;
+    margin: 90px auto 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-size: 0.95rem;
+  }
+
+  /* Actions inline */
+  .poem-actions-horizontal {
+    flex-direction: row;       
+    flex-wrap: wrap;           
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .like-btn, .message-count {
+    font-size: 0.95rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #e0f0ff;
+    color: #004466;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;      
+  }
+
+  .like-btn.liked {
+    background: #ffd6d6;
+    color: #b20000;
+  }
+
+  .like-btn:hover, .message-count:hover {
+    background: #cce6ff;
+    transform: scale(1.05);
+  }
+
+  /* Comment input + button inline */
+  .comment-section-inline {
+    flex-direction: row;
+    gap: 6px;
+    flex: 1;                  
+    min-width: 0;             
+  }
+
+  #comment-input {
+    flex: 0 0 120px;           /* fixed reduced width */
+    font-size: 0.95rem;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    outline: none;
+    min-width: 0;
+  }
+
+  #comment-btn {
+    padding: 6px 10px;
+    font-size: 0.95rem;
+    background: #006699;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    white-space: nowrap;
+  }
+
+  #comment-btn:hover {
+    background: #004466;
+    transform: scale(1.03);
+  }
+
+  /* Comment list */
+  #comment-list {
+    font-size: 0.9rem;
+    margin-top: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    border-top: 1px solid #ccc;
+    padding-top: 6px;
+  }
+
+  .comment {
+    padding: 6px 10px;
+    margin: 4px 0;
+    border-radius: 8px;
+    background: #f9f9f9;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    word-wrap: break-word;
+  }
+}
+
+/* ==================== Desktop Inline Actions ==================== */
+@media (min-width: 769px) {
+
+  /* Poem container */
+  #poem-container {
+    width: 600px;                      /* wider container */
+    padding: 20px;
+    margin: 40px auto;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    font-size: 1rem;
+  }
+
+  /* Actions inline */
+  .poem-actions-horizontal {
+    flex-direction: row;
+    flex-wrap: nowrap;                 /* no wrap on desktop */
+    align-items: center;
+    gap: 12px;
+    margin-top: 15px;
+  }
+
+  /* Like & message buttons */
+  .like-btn, .message-count {
+    font-size: 1rem;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: #e0f0ff;
+    color: #004466;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .like-btn.liked {
+    background: #ffd6d6;
+    color: #b20000;
+  }
+
+  .like-btn:hover, .message-count:hover {
+    background: #cce6ff;
+    transform: scale(1.05);
+  }
+
+  /* Comment input + button inline */
+  .comment-section-inline {
+    flex-direction: row;
+    gap: 10px;
+    flex: 1;                         /* takes remaining space */
+    min-width: 0;
+  }
+
+  #comment-input {
+    flex: 0 0 250px;                  /* wider input for desktop */
+    font-size: 1rem;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    outline: none;
+    min-width: 0;
+  }
+
+  #comment-btn {
+    padding: 8px 12px;
+    font-size: 1rem;
+    background: #006699;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+
+  #comment-btn:hover {
+    background: #004466;
+    transform: scale(1.03);
+  }
+
+  /* Comment list */
+  #comment-list {
+    font-size: 0.95rem;
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid #ccc;
+    padding-top: 8px;
+  }
+
+  .comment {
+    padding: 8px 12px;
+    margin: 5px 0;
+    border-radius: 10px;
+    background: #f9f9f9;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    word-wrap: break-word;
+  }
+}
+
+</style>
 </head>
 
 <body>
