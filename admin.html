@@ -131,21 +131,40 @@ main.content { flex: 1; padding: 20px; }
     </section>
 
     <!-- Add Recent Poem Form -->
-    <section id="recentPoemForm" class="form-section hidden">
-      <h2>Add Recent Poem</h2>
-      <form id="recentPoemSubmitForm">
-        <label>Title:</label>
-        <input type="text" placeholder="Recent poem title" required />
-        <label>Excerpt:</label>
-        <textarea rows="4" placeholder="Short excerpt of poem..." required></textarea>
-        <label>Full Content:</label>
-        <textarea rows="6" placeholder="Full poem content..." required></textarea>
-        <label>Author:</label>
-        <input type="text" placeholder="Author name" />
-        <button type="submit">Submit Recent Poem</button>
-        <p class="form-message"></p>
-      </form>
-    </section>
+<!-- Add Recent Poem Form -->
+<section id="recentPoemForm" class="form-section hidden">
+  <h2>Add Recent Poem</h2>
+  <form id="recentPoemSubmitForm">
+    <label>Title:</label>
+    <input type="text" name="title" placeholder="Recent poem title" required />
+
+    <label>Excerpt (optional):</label>
+    <textarea name="excerpt" rows="4" placeholder="Short excerpt of poem..."></textarea>
+
+    <label>Full Content:</label>
+    <textarea name="content" rows="6" placeholder="Full poem content..." required></textarea>
+
+    <label>Author:</label>
+    <input type="text" name="author" placeholder="Author name" />
+
+    <!-- Flexible Category (multiple allowed, comma-separated) -->
+    <label>Category (comma-separated):</label>
+<input list="categories" name="category" placeholder="Choose or type category" required />
+    <datalist id="categories">
+      <option value="Love">
+      <option value="Life">
+      <option value="Nature">
+      <option value="Friendship">
+      <option value="Inspirational">
+      <option value="Other">
+    </datalist>
+
+    <button type="submit">Submit Recent Poem</button>
+    <p class="form-message"></p>
+  </form>
+</section>
+
+
   </main>
 </div>
 

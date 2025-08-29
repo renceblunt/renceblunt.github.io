@@ -40,18 +40,70 @@ let reachedEnd = false;
 // Load weekly highlights
 async function loadWeeklyHighlights() {
   try {
+    // --- Quote of the Week ---
     const quoteSnap = await getDoc(doc(db, "weeklyHighlights", "weeklyQuote"));
     if (quoteSnap.exists()) {
       const data = quoteSnap.data();
-      document.getElementById("weekly-quote").innerHTML = `<em>“${data.quote}”</em>`;
-      document.getElementById("quote-author").textContent = data.author ? `– ${data.author}` : "";
+
+      // Preserve line breaks
+      const quoteHTML = data.quote.replace(/\n/g, "<br>");
+      document.getElementById("weekly-quote").innerHTML = `<em>“${quoteHTML}”</em>`;
+      document.getElementById("quote-author").innerHTML = data.author 
+        ? `<br>– ${data.author}` 
+        : "";
     }
 
+    // --- Poem of the Week ---
     const poemSnap = await getDoc(doc(db, "weeklyHighlights", "weeklyPoem"));
     if (poemSnap.exists()) {
       const data = poemSnap.data();
-      document.getElementById("weekly-poem").innerHTML = `<em>“${data.content}”</em>`;
-      document.getElementById("poem-author").textContent = data.author ? `– ${data.author}` : "";
+
+      // ✅ Grab poem parts
+      const title = data.title || "Untitled"; // fallback if no title
+      const author = data.author || "";
+      const content = data.content || "";
+
+      // Split poem into lines
+      const lines = content.split("\n");
+      const firstPart = lines.slice(0, 8).join("<br>");
+      const restPart = lines.slice(8).join("<br>");
+
+      const poemContainer = document.getElementById("weekly-poem");
+      const poemAuthor = document.getElementById("poem-author");
+      const poemTitle = document.getElementById("poem-title"); // 🎯 title container
+
+      // ✅ Show title
+      poemTitle.innerHTML = `<h3 class="poem-title">${title}</h3>`;
+
+      // ✅ Insert poem text + toggle
+      const wrapperId = "poem-wrapper"; 
+      poemContainer.innerHTML = `
+        <div id="${wrapperId}">
+          <div class="poem-text">
+            <span class="first-lines">${firstPart}</span>
+            <span class="more-lines" style="display:none;">${restPart ? "<br>" + restPart : ""}</span>
+          </div>
+          ${lines.length > 8 ? '<button class="toggle-poem">Read more</button>' : ""}
+        </div>
+      `;
+
+      // ✅ Show author with full-width separator above
+      poemAuthor.innerHTML = author 
+        ? `<hr class="poem-separator"><div class="poem-author">– ${author}</div>` 
+        : "";
+
+      // Scoped toggle only for this poem container
+      if (lines.length > 8) {
+        const wrapper = document.getElementById(wrapperId);
+        const toggleBtn = wrapper.querySelector(".toggle-poem");
+        const moreLines = wrapper.querySelector(".more-lines");
+
+        toggleBtn.addEventListener("click", () => {
+          const isHidden = moreLines.style.display === "none";
+          moreLines.style.display = isHidden ? "inline" : "none";
+          toggleBtn.textContent = isHidden ? "Read less" : "Read more";
+        });
+      }
     }
   } catch (err) {
     console.error("Error fetching weekly highlights:", err);
@@ -104,7 +156,7 @@ async function loadRecentPoems(initial = false) {
   const likes = typeof poem.likes === "number" ? poem.likes : 0;
 
   card.innerHTML = `
-    <h3>${poem.title}</h3>
+  <h3 class="recent-poem-title">${poem.title}</h3>
     <p class="poem-content">${truncated.preview}</p>
     ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
     ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
@@ -383,3 +435,58 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+async function fetchCategories() {
+  try {
+    const snapshot = await getDocs(collection(db, "recentPoems"));
+    const categorySet = new Set();
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.categories && Array.isArray(data.categories)) {
+        data.categories.forEach(cat => categorySet.add(cat));
+      }
+    });
+
+    const sortedCategories = Array.from(categorySet).sort((a, b) => a.localeCompare(b));
+    const container = document.getElementById("poem-categories");
+    container.innerHTML = "";
+
+    // Limit to 23 categories before showing "All »"
+    const limit = 23;
+    sortedCategories.forEach((cat, index) => {
+      if (index < limit) {
+        const span = document.createElement("span");
+        span.textContent = cat;
+        span.className = "poem-category";
+        
+        // ✅ Make category clickable
+        span.addEventListener("click", () => {
+          window.location.href = `category.html?name=${encodeURIComponent(cat)}`;
+        });
+
+        container.appendChild(span);
+      }
+    });
+
+    // Add "All »" link
+    if (sortedCategories.length > limit) {
+      const allSpan = document.createElement("span");
+      allSpan.textContent = "All »";
+      allSpan.className = "all-categories";
+
+      allSpan.addEventListener("click", () => {
+        window.location.href = "all-categories.html";
+      });
+
+      container.appendChild(allSpan);
+    }
+
+  } catch (err) {
+    console.error("Error fetching categories: ", err);
+  }
+}
+
+fetchCategories();
+
+

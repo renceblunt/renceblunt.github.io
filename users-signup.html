@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,5 +33,24 @@
 
   <!-- Firebase Auth JS -->
   <script type="module" src="usersAccount.js"></script>
+
+  <script type="module">
+    import { auth, onAuthStateChanged } from './usersAccount.js';
+
+    const loginLink = document.getElementById("loginLink");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const userInfoDiv = document.getElementById("user-info");
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginLink.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+      } else {
+        loginLink.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        userInfoDiv.textContent = "";
+      }
+    });
+  </script>
 </body>
 </html>

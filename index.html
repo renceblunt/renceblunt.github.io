@@ -38,28 +38,42 @@
     <p>You are invited to read, share, like, and comment on the words poured out of my inner chamber.</p>
   </section>
 <!-- Weekly Highlights -->
+
+<!-- Recent Poems Container (below weekly highlights) -->
 <!-- Weekly Highlights -->
 <section class="weekly-container">
-  <!-- Quote -->
-  <div class="weekly-card">
-<h2 style="text-align: center;">Quote of the Week</h2>
-    <p id="weekly-quote"><em>Loading quote...</em></p>
-    <span id="quote-author" class="author"></span>
+  
+  <!-- Left column: Quote + Categories -->
+  <div class="weekly-left">
+    <!-- Quote -->
+    <div class="weekly-card quote-card">
+      <h2 class="weekly-title">Quote of the Week</h2>
+      <p id="weekly-quote"><em>Loading quote...</em></p>
+      <span id="quote-author" class="author"></span>
+    </div>
+
+    <!-- Categories (directly under quote) -->
+    <div id="poem-categories-container">
+      <h4 class="categories-title">Categories</h4>
+      <div id="poem-categories"></div>
+    </div>
   </div>
 
-  <!-- Poem -->
-  <div class="weekly-card">
-<h2 style="text-align: center;">Poetry of the Week</h2>
+  <!-- Right column: Poem -->
+  <div class="weekly-card poem-card">
+    <h2 class="weekly-title">Poetry of the Week</h2>
+    <div id="poem-title"></div>
     <p id="weekly-poem"><em>Loading poem...</em></p>
     <span id="poem-author" class="author"></span>
   </div>
+
 </section>
 
-<!-- Recent Poems Container (below weekly highlights) -->
+
 
 <!-- Recent Poems Section -->
 <section class="recent-poems-section" style="position: relative;">
-  <h2 style="text-align: center;">Recent Poems</h2>
+<h2 class="recent-poems-heading">Recent Poems</h2>
   <input type="text" id="recent-poems-search" placeholder="Search..." />
   
   <div id="recent-poems-container" class="recent-poems-container">
@@ -90,6 +104,7 @@
     <p>&copy; 2025 Rence Blunt. All rights reserved.</p>
   </div>
 </footer>
+
   <script src="script.js"></script>
   
 </body>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>All Categories | Rence Blunt Poetry</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body { font-family: Arial, sans-serif; background:#fafafa; padding:20px; }
+h2 { text-align:center; margin-bottom:20px; }
+.categories-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+}
+.categories-container li {
+  background: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+.categories-container li a {
+  text-decoration: none;
+  color: #333;
+}
+.categories-container li a:hover {
+  color: #007BFF;
+}
+</style>
+</head>
+<body>
+
+<h2>All Categories</h2>
+<ul id="categories-container" class="categories-container">
+  <li>Loading categories...</li>
+</ul>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const container = document.getElementById("categories-container");
+
+async function loadAllCategories() {
+  const snapshot = await getDocs(collection(db, "recentPoems"));
+  const categoriesSet = new Set();
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    if(Array.isArray(data.categories)){
+      data.categories.forEach(cat => categoriesSet.add(cat));
+    }
+  });
+
+  const categories = Array.from(categoriesSet).sort((a,b) => a.localeCompare(b, 'en', {sensitivity: 'base'}));
+
+  container.innerHTML = "";
+
+  if(categories.length === 0){
+    container.innerHTML = "<li>No categories found.</li>";
+    return;
+  }
+
+  categories.forEach(cat => {
+    const li = document.createElement("li");
+    li.innerHTML = `<a href="category.html?name=${encodeURIComponent(cat)}">${cat}</a>`;
+    container.appendChild(li);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", loadAllCategories);
+</script>
+
+</body>
+</html>

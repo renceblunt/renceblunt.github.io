@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Category | Rence Blunt Poetry</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">Rence Blunt Poetry</div>
+  <div class="menu-toggle" id="menu-toggle">☰</div>
+  <div class="nav-links" id="nav-links">
+    <a href="index.html">Home</a>
+    <a href="category.html"  class="active">Poems</a>
+        <a href="poemslink.html">Links</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+
+<section class="recent-poems-section">
+  <h2 class="category-header" id="category-title">Loading...</h2>
+  <div id="recent-poems-container" class="recent-poems-container">
+    <p>Loading poems...</p>
+  </div>
+</section>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc, increment, arrayUnion, orderBy, onSnapshot, addDoc 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth();
+
+let currentUser = null;
+onAuthStateChanged(auth, user => { currentUser = user; });
+
+const container = document.getElementById("recent-poems-container");
+const urlParams = new URLSearchParams(window.location.search);
+const categoryName = urlParams.get("name") || "All";
+document.getElementById("category-title").textContent = `Category: ${categoryName}`;
+
+function truncatePoem(text, lines=8){
+  const allLines = text.split(/\r?\n/);
+  if(allLines.length <= lines) return { preview: text, full: text, truncated: false };
+  return { preview: allLines.slice(0, lines).join("\n"), full: text, truncated: true };
+}
+
+async function renderPoemCard(poem, docId){
+  const card = document.createElement("div");
+  card.className = "recent-poem-card";
+  card.dataset.id = docId;
+  const truncated = truncatePoem(poem.content, 8);
+
+  card.innerHTML = `
+    <h3>${poem.title}</h3>
+    <p class="poem-content">${truncated.preview.replace(/\n/g,"<br>")}</p>
+    ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
+    ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
+    <div class="poem-actions">
+      <div class="comment-section">
+        <textarea class="comment-input" placeholder="Write a comment..." rows="1"></textarea>
+        <button class="comment-btn">Post</button>
+      </div>
+      <button class="like-btn">❤️</button>
+      <span class="like-count">0</span>
+      <span class="message-count">💬 0</span>
+    </div>
+    <div class="comment-list"></div>
+  `;
+  container.appendChild(card);
+
+  // Read More toggle
+  if(truncated.truncated){
+    const btn = card.querySelector(".read-more-btn");
+    const p = card.querySelector(".poem-content");
+    btn.addEventListener("click", ()=>{
+      if(btn.textContent==="Read More"){
+        p.innerHTML = truncated.full.replace(/\n/g,"<br>");
+        btn.textContent="Show Less";
+      } else {
+        p.innerHTML = truncated.preview.replace(/\n/g,"<br>");
+        btn.textContent="Read More";
+      }
+    });
+  }
+
+  const poemRef = doc(db, "recentPoems", docId);
+
+  // Live likes
+  onSnapshot(poemRef, snap=>{
+    if(!snap.exists()) return;
+    const data = snap.data();
+    const likes = data.likes || 0;
+    const likedBy = Array.isArray(data.likedBy)? data.likedBy : [];
+    card.querySelector(".like-count").textContent = likes;
+    if(currentUser && likedBy.includes(currentUser.uid)){
+      card.querySelector(".like-btn").classList.add("liked");
+    } else {
+      card.querySelector(".like-btn").classList.remove("liked");
+    }
+  });
+
+  // Initial comment count
+  const commentsCol = collection(db,"recentPoems",docId,"comments");
+  const commentsSnapshot = await getDocs(commentsCol);
+  card.querySelector(".message-count").textContent = `💬 ${commentsSnapshot.size}`;
+}
+
+// Load poems in category
+async function loadCategoryPoems(){
+  let q = categoryName==="All"? collection(db,"recentPoems") : query(collection(db,"recentPoems"), where("categories","array-contains",categoryName));
+  const snapshot = await getDocs(q);
+  container.innerHTML = "";
+  if(snapshot.empty){ container.innerHTML = `<p>No poems found in "${categoryName}" category.</p>`; return; }
+  for(const docSnap of snapshot.docs){ await renderPoemCard(docSnap.data(), docSnap.id); }
+}
+
+// Likes, comments, toggle
+document.addEventListener("click", async e=>{
+  const card = e.target.closest(".recent-poem-card");
+  if(!card) return;
+  const docRefPoem = doc(db,"recentPoems",card.dataset.id);
+
+  // Like button
+  if(e.target.classList.contains("like-btn")){
+    if(!currentUser){ alert("Sign in to like poems!"); return; }
+    const docSnap = await getDoc(docRefPoem);
+    if(!docSnap.exists()) return;
+    const data = docSnap.data();
+    const likedBy = Array.isArray(data.likedBy)?data.likedBy:[];
+    if(likedBy.includes(currentUser.uid)){
+      await updateDoc(docRefPoem,{ likes: increment(-1), likedBy: likedBy.filter(uid=>uid!==currentUser.uid) });
+    } else {
+      await updateDoc(docRefPoem,{ likes: increment(1), likedBy: arrayUnion(currentUser.uid) });
+    }
+  }
+
+  // Post comment
+  if(e.target.classList.contains("comment-btn")){
+    if(!currentUser){ alert("Sign in to comment!"); return; }
+    const input = card.querySelector(".comment-input");
+    const text = input.value.trim();
+    if(!text) return;
+
+    const commentRef = await addDoc(collection(db,"recentPoems",card.dataset.id,"comments"),{
+      userId: currentUser.uid,
+      text,
+      timestamp: new Date()
+    });
+    input.value="";
+
+    // Append comment live
+    const commentList = card.querySelector(".comment-list");
+    const div = document.createElement("div");
+    div.className = "comment";
+    div.textContent = `${currentUser.displayName || "Anonymous"}: ${text}`;
+    commentList.insertBefore(div, commentList.firstChild);
+    // update count
+    const countSpan = card.querySelector(".message-count");
+    countSpan.textContent = `💬 ${parseInt(countSpan.textContent.replace("💬","").trim()) + 1}`;
+  }
+
+  // Toggle comments
+  if(e.target.classList.contains("message-count")){
+    const commentList = card.querySelector(".comment-list");
+    if(commentList.style.display==="block"){ commentList.style.display="none"; return; }
+
+    commentList.innerHTML = "<p>Loading comments...</p>";
+    const commentsCol = collection(db,"recentPoems",card.dataset.id,"comments");
+    const commentsSnapshot = await getDocs(query(commentsCol, orderBy("timestamp","desc")));
+    commentList.innerHTML = "";
+    for(const docSnap of commentsSnapshot.docs){
+      const c = docSnap.data();
+      let username = "Anonymous";
+      if(c.userId){
+        const userDoc = await getDoc(doc(db,"users",c.userId));
+        if(userDoc.exists()) username = userDoc.data()?.username || "Anonymous";
+      }
+      const div = document.createElement("div");
+      div.className = "comment";
+      div.textContent = `${username}: ${c.text}`;
+      commentList.appendChild(div);
+    }
+    commentList.style.display = "block";
+  }
+});
+
+document.addEventListener("DOMContentLoaded", loadCategoryPoems);
+</script>
+<script>
+// Navbar toggle (mobile)
+document.addEventListener("DOMContentLoaded", () => {
+  const toggle = document.getElementById("menu-toggle");
+  const navLinks = document.getElementById("nav-links");
+  if (toggle && navLinks) {
+    toggle.addEventListener("click", () => navLinks.classList.toggle("show"));
+  }
+  // Close menu on link click
+  navLinks.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", () => navLinks.classList.remove("show"));
+  });
+});
+
+// Sidebar toggle with overlay
+const sidebarToggle = document.getElementById("sidebar-toggle");
+const sidebar = document.querySelector(".sidebar");
+const overlay = document.getElementById("overlay");
+
+sidebarToggle.addEventListener("click", () => {
+  sidebar.classList.toggle("show");
+  overlay.classList.toggle("show");
+});
+overlay.addEventListener("click", () => {
+  sidebar.classList.remove("show");
+  overlay.classList.remove("show");
+});
+</script>
+</body>
+</html>

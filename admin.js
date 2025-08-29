@@ -49,48 +49,67 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Weekly Poem Form (overwrite previous)
-  poemForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    const content = poemForm.querySelector("textarea[placeholder='Poem content...']").value;
-    const author = poemForm.querySelector("input[placeholder='Author name']").value || "";
-    const msg = poemForm.querySelector(".form-message");
+// Weekly Poem Form (overwrite previous)
+poemForm.addEventListener("submit", async e => {
+  e.preventDefault();
 
-    try {
-      await setDoc(doc(db, "weeklyHighlights", "weeklyPoem"), {
-        content,
-        author,
-        timestamp: serverTimestamp()
-      });
-      showMessage(msg, "✅ Weekly Poem updated!");
-      poemForm.reset();
-    } catch (err) {
-      showMessage(msg, "❌ Error updating poem: " + err.message, false);
-    }
-  });
+  // ✅ Get values from form
+  const title = poemForm.querySelector("input[placeholder='Poem title']").value;
+  const content = poemForm.querySelector("textarea[placeholder='Poem content...']").value;
+  const author = poemForm.querySelector("input[placeholder='Author name']").value || "";
+  const msg = poemForm.querySelector(".form-message");
 
-  // Recent Poem Form (adds new document)
-  recentForm.addEventListener("submit", async e => {
-    e.preventDefault();
-    const title = recentForm.querySelector("input[placeholder='Recent poem title']").value;
-    const excerpt = recentForm.querySelector("textarea[placeholder='Short excerpt of poem...']").value;
-    const content = recentForm.querySelector("textarea[placeholder='Full poem content...']").value;
-    const author = recentForm.querySelector("input[placeholder='Author name']").value || "";
-    const msg = recentForm.querySelector(".form-message");
+  try {
+    // ✅ Create/overwrite document with title field
+    await setDoc(doc(db, "weeklyHighlights", "weeklyPoem"), {
+      title,      // 🎯 now saved in Firestore
+      content,
+      author,
+      timestamp: serverTimestamp()
+    });
 
-    try {
-      await addDoc(collection(db, "recentPoems"), {
-        title,
-        excerpt,
-        content,
-        author,
-        timestamp: serverTimestamp()
-      });
-      showMessage(msg, "✅ Recent Poem added successfully!");
-      recentForm.reset();
-    } catch (err) {
-      showMessage(msg, "❌ Error adding recent poem: " + err.message, false);
-    }
-  });
+    showMessage(msg, "✅ Weekly Poem updated!");
+    poemForm.reset();
+  } catch (err) {
+    showMessage(msg, "❌ Error updating poem: " + err.message, false);
+  }
+});
+
+// Recent Poem Form (adds new document)
+recentForm.addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const title = recentForm.querySelector("input[placeholder='Recent poem title']").value.trim();
+  const excerpt = recentForm.querySelector("textarea[placeholder='Short excerpt of poem...']").value.trim() || null; // optional
+  const content = recentForm.querySelector("textarea[placeholder='Full poem content...']").value.trim();
+  const authorInput = recentForm.querySelector("input[placeholder='Author name']").value.trim();
+  const author = authorInput === "" ? null : authorInput; // store null if empty
+
+  const categoryInput = recentForm.querySelector("input[placeholder='Choose or type category']").value.trim();
+  
+  // Convert comma-separated input into an array of trimmed categories
+  const categories = categoryInput.split(",").map(cat => cat.trim()).filter(cat => cat);  
+
+  const msg = recentForm.querySelector(".form-message");
+
+  try {
+    await addDoc(collection(db, "recentPoems"), {
+      title,
+      excerpt,     
+      content,
+      author,      
+      categories,  // stored as an array
+      timestamp: serverTimestamp()
+    });
+
+    showMessage(msg, "✅ Recent Poem added successfully!");
+    recentForm.reset();
+  } catch (err) {
+    showMessage(msg, "❌ Error adding recent poem: " + err.message, false);
+  }
+});
+
+
 
 });
 
