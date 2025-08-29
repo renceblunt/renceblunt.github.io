@@ -49,7 +49,7 @@ async function loadWeeklyHighlights() {
       const quoteHTML = data.quote.replace(/\n/g, "<br>");
       document.getElementById("weekly-quote").innerHTML = `<em>“${quoteHTML}”</em>`;
       document.getElementById("quote-author").innerHTML = data.author 
-        ? `<br>– ${data.author}` 
+        ? `<br>~ ${data.author}` 
         : "";
     }
 
@@ -89,7 +89,7 @@ async function loadWeeklyHighlights() {
 
       // ✅ Show author with full-width separator above
       poemAuthor.innerHTML = author 
-        ? `<hr class="poem-separator"><div class="poem-author">– ${author}</div>` 
+        ? `<hr class="poem-separator"><div class="poem-author">~ ${author}</div>` 
         : "";
 
       // Scoped toggle only for this poem container
