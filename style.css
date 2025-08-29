@@ -815,6 +815,22 @@ font-family: 'Lato', sans-serif;
   border-radius: 2px;
 }
 
+/* Mobile view */
+@media (max-width: 768px) {
+  .poem-separator {
+    width: 90%;       /* almost full width on mobile */
+    height: 2px;      /* keep thickness */
+    margin: 10px auto; /* slightly smaller margins */
+  }
+}
+
+@media (max-width: 480px) {
+  .poem-separator {
+    width: 95%;       /* full width on very small screens */
+    margin: 8px auto; /* tighter spacing */
+  }
+}
+
 
 .poem-title {
   font-family: "Georgia", "Times New Roman", serif; /* classic literary font */
