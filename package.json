@@ -1,5 +1,17 @@
 {
   "dependencies": {
-    "firebase": "^12.1.0"
-  }
+    "firebase": "^12.1.0",
+    "firebase-admin": "^13.5.0",
+    "glob": "^11.0.3"
+  },
+  "name": "rence-blunt-silent-depth",
+  "version": "1.0.0",
+  "main": "admin-auth.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }

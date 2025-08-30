@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Static pages -->
+  <url>
+    <loc>https://renceblunt.github.io/</loc>
+    <lastmod>2025-08-29T10:42:22.878Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://renceblunt.github.io/poemslink.html</loc>
+    <lastmod>2025-08-29T11:31:47.580Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://renceblunt.github.io/poems.html</loc>
+    <lastmod>2025-08-28T22:36:56.537Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://renceblunt.github.io/poem.html</loc>
+    <lastmod>2025-08-29T11:40:53.537Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://renceblunt.github.io/contact.html</loc>
+    <lastmod>2025-08-27T23:28:19.196Z</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://renceblunt.github.io/all-categories.html</loc>
+    <lastmod>2025-08-29T09:48:15.601Z</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://renceblunt.github.io/about.html</loc>
+    <lastmod>2025-08-27T23:29:58.009Z</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <!-- Dynamic poems -->
+  <url>
+    <loc>https://renceblunt.github.io/poems/0MCW6jcEnBxoOFMAH5rK</loc>
+    <lastmod>2025-08-27T00:38:06.962Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://renceblunt.github.io/poems/1uVboEXES2XakrXELXiR</loc>
+    <lastmod>2025-08-29T23:30:02.248Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <!-- (Add all other dynamic poem URLs similarly) -->
+
+  <!-- Categories -->
+  <url>
+    <loc>https://renceblunt.github.io/category.html?name=Homework</loc>
+    <lastmod>2025-08-29T23:30:03.308Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://renceblunt.github.io/category.html?name=Honesty</loc>
+    <lastmod>2025-08-29T23:30:03.308Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://renceblunt.github.io/category.html?name=Hope</loc>
+    <lastmod>2025-08-29T23:30:03.308Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <!-- (Add all other category URLs similarly) -->
+
+  <!-- Images -->
+  <url>
+    <loc>https://renceblunt.github.io/images/images/renceblunt.jpg</loc>
+    <lastmod>2025-08-29T23:30:03.333Z</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://renceblunt.github.io/images/images/link.jpg</loc>
+    <lastmod>2025-08-29T23:30:03.333Z</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+
+</urlset>
