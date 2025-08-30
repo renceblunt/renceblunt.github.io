@@ -215,6 +215,7 @@ body {
 
   .hero .subtitle {
     font-size: 1rem;
+    
   }
 }
 
@@ -232,6 +233,7 @@ body {
   }
     .hero p {
     font-size: 0.9rem; /* smaller paragraph text */
+    
   }
 }
 /* --- Reduce nav toggle (hamburger) size and link spacing on small screens --- */
