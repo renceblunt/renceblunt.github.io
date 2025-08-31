@@ -29,6 +29,8 @@ h2 { text-align:center; margin-bottom:20px; }
 }
 .category-name {
   font-weight: 500;
+  flex: 1;
+  margin-left: 8px;
 }
 .actions button {
   margin-left: 6px;
@@ -42,11 +44,28 @@ h2 { text-align:center; margin-bottom:20px; }
 .delete-btn { background: #dc3545; color: #fff; }
 .save-btn { background: #28a745; color: #fff; }
 .cancel-btn { background: #6c757d; color: #fff; }
+
+.bulk-actions {
+  text-align: center;
+  margin: 15px 0;
+}
+.bulk-actions button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #dc3545;
+  color: #fff;
+  font-size: 0.9rem;
+}
 </style>
 </head>
 <body>
 
 <h2>Manage Categories</h2>
+<div class="bulk-actions">
+  <button id="delete-selected-btn">Delete Selected</button>
+</div>
 <ul id="categories-container" class="categories-container">
   <li>Loading categories...</li>
 </ul>
@@ -68,6 +87,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const container = document.getElementById("categories-container");
+const deleteSelectedBtn = document.getElementById("delete-selected-btn");
 
 async function loadAllCategories() {
   const snapshot = await getDocs(collection(db, "recentPoems"));
@@ -92,6 +112,7 @@ async function loadAllCategories() {
   categories.forEach(cat => {
     const li = document.createElement("li");
     li.innerHTML = `
+      <input type="checkbox" class="category-checkbox" value="${cat}">
       <span class="category-name">${cat}</span>
       <div class="actions">
         <button class="edit-btn">Edit</button>
@@ -134,7 +155,7 @@ async function loadAllCategories() {
       });
     });
 
-    // Delete logic
+    // Single delete logic
     li.querySelector(".delete-btn").addEventListener("click", async () => {
       if (!confirm(`Delete category "${cat}" from all poems?`)) return;
 
@@ -153,6 +174,30 @@ async function loadAllCategories() {
     container.appendChild(li);
   });
 }
+
+// Bulk delete selected
+deleteSelectedBtn.addEventListener("click", async () => {
+  const selected = Array.from(document.querySelectorAll(".category-checkbox:checked")).map(cb => cb.value);
+
+  if (selected.length === 0) {
+    return alert("Please select at least one category to delete.");
+  }
+
+  if (!confirm(`Delete selected categories (${selected.join(", ")}) from all poems?`)) return;
+
+  const snap = await getDocs(collection(db, "recentPoems"));
+  for (let docSnap of snap.docs) {
+    const data = docSnap.data();
+    if (Array.isArray(data.categories)) {
+      const updatedCats = data.categories.filter(c => !selected.includes(c));
+      if (updatedCats.length !== data.categories.length) {
+        await updateDoc(doc(db, "recentPoems", docSnap.id), { categories: updatedCats });
+      }
+    }
+  }
+  alert(`Categories deleted: ${selected.join(", ")}`);
+  location.reload();
+});
 
 document.addEventListener("DOMContentLoaded", loadAllCategories);
 </script>

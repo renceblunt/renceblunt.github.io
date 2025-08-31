@@ -15,7 +15,24 @@ body {
 
 h1 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+}
+
+.bulk-actions {
+  text-align: center;
+  margin-bottom: 12px;
+}
+.bulk-actions button {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.bulk-actions button:hover {
+  background: #c0392b;
 }
 
 /* Table styling */
@@ -48,6 +65,7 @@ button.delete-btn {
 button.delete-btn:hover {
   background: #c0392b;
 }
+
 /* --- Mobile Responsive --- */
 @media screen and (max-width: 768px) {
   body {
@@ -57,7 +75,12 @@ button.delete-btn:hover {
 
   h1 {
     font-size: 1.5em;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
+  }
+
+  .bulk-actions button {
+    font-size: 0.8rem;
+    padding: 6px 10px;
   }
 
   table {
@@ -67,30 +90,17 @@ button.delete-btn:hover {
     white-space: nowrap;
   }
 
-  thead {
-    display: table-header-group; /* keep header visible while scrolling */
-  }
-
   th, td {
     padding: 8px 10px;
     font-size: 13px;
-  }
-
-  td a {
-    word-break: break-word;
   }
 
   button.delete-btn {
     padding: 4px 8px;
     font-size: 12px;
   }
-
-  tbody tr {
-    display: table-row;
-  }
 }
 
-/* Optional: extra small screens (phones) */
 @media screen and (max-width: 480px) {
   h1 {
     font-size: 1.3em;
@@ -100,20 +110,31 @@ button.delete-btn:hover {
     padding: 6px 8px;
   }
 
+  .bulk-actions button {
+    font-size: 0.75rem;
+    padding: 5px 8px;
+  }
+
   button.delete-btn {
     padding: 3px 6px;
+    font-size: 11px;
   }
 }
-
 </style>
 </head>
 <body>
 
 <h1>Messages</h1>
 
+<div class="bulk-actions">
+  <label><input type="checkbox" id="selectAll"> Select All</label>
+  <button id="deleteSelectedBtn">Delete Selected</button>
+</div>
+
 <table id="messagesTable">
   <thead>
     <tr>
+      <th></th>
       <th>Name</th>
       <th>Email</th>
       <th>Message</th>
@@ -148,10 +169,12 @@ const db = getFirestore(app);
 enableIndexedDbPersistence(db).catch((err) => console.warn("Offline persistence error:", err.code));
 
 const messagesTable = document.querySelector("#messagesTable tbody");
+const selectAllCheckbox = document.getElementById("selectAll");
+const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
 
 // Load all messages in descending order (most recent first)
 const loadMessages = async () => {
-  messagesTable.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+  messagesTable.innerHTML = "<tr><td colspan='6'>Loading...</td></tr>";
   const snapshot = await getDocs(collection(db, "messages"));
   const messages = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
     .sort((a,b) => {
@@ -165,23 +188,49 @@ const loadMessages = async () => {
     let timeStr = timestamp?.toDate ? timestamp.toDate().toUTCString() : "N/A";
     const tr = document.createElement("tr");
     tr.innerHTML = `
+      <td><input type="checkbox" class="msg-checkbox" data-id="${id}"></td>
       <td>${name}</td>
       <td><a href="mailto:${email}">${email}</a></td>
       <td>${message}</td>
       <td>${timeStr}</td>
       <td><button class="delete-btn">Delete</button></td>
     `;
+
+    // Single delete
     tr.querySelector(".delete-btn").addEventListener("click", async () => {
       if(confirm("Delete this message?")) {
         await deleteDoc(doc(db, "messages", id));
         tr.remove();
       }
     });
+
     messagesTable.appendChild(tr);
   });
 
-  if(messages.length===0) messagesTable.innerHTML = "<tr><td colspan='5'>No messages found.</td></tr>";
+  if(messages.length===0) messagesTable.innerHTML = "<tr><td colspan='6'>No messages found.</td></tr>";
 };
+
+// Bulk delete
+deleteSelectedBtn.addEventListener("click", async () => {
+  const selected = Array.from(document.querySelectorAll(".msg-checkbox:checked"));
+  if(selected.length === 0) {
+    return alert("Please select at least one message to delete.");
+  }
+
+  if(!confirm(`Delete ${selected.length} selected message(s)?`)) return;
+
+  for(const cb of selected) {
+    const id = cb.getAttribute("data-id");
+    await deleteDoc(doc(db, "messages", id));
+    cb.closest("tr").remove();
+  }
+});
+
+// Select all toggle
+selectAllCheckbox.addEventListener("change", () => {
+  const checkboxes = document.querySelectorAll(".msg-checkbox");
+  checkboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
+});
 
 // Initial load
 loadMessages();
