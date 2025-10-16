@@ -1225,9 +1225,6 @@ font-family: 'Lato', sans-serif;
 }
 
 
-
-
-
 /* Hide by default */
 .bottom-categories {
   display: none;
@@ -1238,27 +1235,36 @@ font-family: 'Lato', sans-serif;
   .bottom-categories {
     display: block;
     background: #fafafa;
-    padding: 20px;
+    padding: 16px;
     border-top: 1px solid #ddd;
     text-align: center;
+    margin: 20px auto 0;
+    max-width: 95%;
+    box-sizing: border-box;
   }
 
   #bottom-poem-categories {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* ✅ 4 per row */
     gap: 10px;
+    justify-items: center;
+    align-items: center;
+    margin-top: 10px;
   }
 
   .bottom-categories .poem-category,
   .bottom-categories .all-categories {
     background: white;
     border: 1px solid #ccc;
-    padding: 6px 12px;
+    padding: 6px 10px;
     border-radius: 20px;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s ease;
+    white-space: normal;
+    text-align: center;
+    width: 100%; /* ✅ fits grid cell */
+    box-sizing: border-box;
   }
 
   .bottom-categories .poem-category:hover {
