@@ -110,17 +110,25 @@
 
   <!-- === IMAGES === -->
   <url>
-    <loc>https://renceblunt.github.io/images/cover1.jpg</loc>
+    <loc>https://renceblunt.github.io/images/link.jpg</loc>
     <image:image>
-      <image:loc>https://renceblunt.github.io/images/cover1.jpg</image:loc>
+      <image:loc>https://renceblunt.github.io/images/link.jpg</image:loc>
       <image:caption>Poetry site banner</image:caption>
     </image:image>
   </url>
 
   <url>
-    <loc>https://renceblunt.github.io/images/cover2.jpg</loc>
+    <loc>https://renceblunt.github.io/images/renceblunt.jpg</loc>
     <image:image>
-      <image:loc>https://renceblunt.github.io/images/cover2.jpg</image:loc>
+      <image:loc>https://renceblunt.github.io/images/renceblunt.jpg</image:loc>
+      <image:caption>Poetry site banner</image:caption>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://renceblunt.github.io/images/logo.png</loc>
+    <image:image>
+      <image:loc>https://renceblunt.github.io/images/logo.png</image:loc>
       <image:caption>Poems collection</image:caption>
     </image:image>
   </url>
