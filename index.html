@@ -119,6 +119,75 @@
 
 <script type="module" src="script.js"></script>
 
+<script type="module">
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+(async function fetchBottomCategories() {
+  try {
+    const snapshot = await getDocs(collection(db, "recentPoems"));
+    const categorySet = new Set();
+
+    snapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      if (data.categories && Array.isArray(data.categories)) {
+        data.categories.forEach(cat => categorySet.add(cat.trim()));
+      }
+    });
+
+    const sortedCategories = Array.from(categorySet).sort((a, b) => a.localeCompare(b));
+    const container = document.getElementById("bottom-poem-categories");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const limit = 20;
+    sortedCategories.forEach((cat, index) => {
+      if (index < limit) {
+        const span = document.createElement("span");
+        span.textContent = cat;
+        span.className = "poem-category";
+        span.addEventListener("click", () => {
+          window.location.href = `category.html?name=${encodeURIComponent(cat)}`;
+        });
+        container.appendChild(span);
+      }
+    });
+
+    if (sortedCategories.length > limit) {
+      const allSpan = document.createElement("span");
+      allSpan.textContent = "All »";
+      allSpan.className = "all-categories";
+      allSpan.addEventListener("click", () => {
+        window.location.href = "all-categories.html";
+      });
+      container.appendChild(allSpan);
+    }
+
+  } catch (err) {
+    console.error("❌ Error fetching bottom categories:", err);
+  }
+})();
+</script>
+
+<!-- Bottom Categories (only on small screens) -->
+<section id="bottom-categories-section" class="bottom-categories">
+  <h4 class="categories-title">Categories</h4>
+  <div id="bottom-poem-categories"></div>
+</section>
+
 <footer class="site-footer">
   <div class="footer-container">
     <p>&copy; 2025 Rence Blunt. All rights reserved.</p>
