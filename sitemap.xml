@@ -13,7 +13,7 @@
   <url>
     <loc>https://renceblunt.github.io/poems.html</loc>
     <lastmod>2025-10-15T16:00:57.107Z</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>daily</changefreq>
   </url>
 
   <url>
@@ -37,19 +37,19 @@
   <url>
     <loc>https://renceblunt.github.io/</loc>
     <lastmod>2025-10-16T14:20:15.078Z</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>daily</changefreq>
   </url>
 
   <url>
     <loc>https://renceblunt.github.io/contact.html</loc>
     <lastmod>2025-10-15T16:05:16.735Z</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>monthly</changefreq>
   </url>
 
   <url>
     <loc>https://renceblunt.github.io/category.html</loc>
     <lastmod>2025-10-15T16:05:03.796Z</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>weekly</changefreq>
   </url>
 
   <url>
@@ -59,12 +59,12 @@
   </url>
 
   <!-- === START POEMS === -->
-  <url><loc>https://renceblunt.github.io/poems/0HGWuepjUsGumvCPp0Qt</loc><lastmod>2025-10-15T15:26:11.237Z</lastmod><changefreq>weekly</changefreq></url>
-  <url><loc>https://renceblunt.github.io/poems/213g6aJGdB99JcEOnEZU</loc><lastmod>2025-10-15T15:25:36.823Z</lastmod><changefreq>weekly</changefreq></url>
-  <url><loc>https://renceblunt.github.io/poems/3WpBWXTNFi0Nq0suqeDc</loc><lastmod>2025-10-15T15:35:26.776Z</lastmod><changefreq>weekly</changefreq></url>
-  <url><loc>https://renceblunt.github.io/poems/3xzqPCCKC9EfiV5HmQwu</loc><lastmod>2025-10-15T15:22:23.633Z</lastmod><changefreq>weekly</changefreq></url>
-  <url><loc>https://renceblunt.github.io/poems/6nbPeE9ctCNIMvVRtfxz</loc><lastmod>2025-10-15T15:29:12.867Z</lastmod><changefreq>weekly</changefreq></url>
-  <url><loc>https://renceblunt.github.io/poems/DhfOO00jn9kKLdonXVA6</loc><lastmod>2025-10-15T15:14:36.955Z</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://renceblunt.github.io/poems/0HGWuepjUsGumvCPp0Qt</loc><lastmod>2025-10-15T15:26:11.237Z</lastmod><changefreq>daily</changefreq></url>
+  <url><loc>https://renceblunt.github.io/poems/213g6aJGdB99JcEOnEZU</loc><lastmod>2025-10-15T15:25:36.823Z</lastmod><changefreq>daily</changefreq></url>
+  <url><loc>https://renceblunt.github.io/poems/3WpBWXTNFi0Nq0suqeDc</loc><lastmod>2025-10-15T15:35:26.776Z</lastmod><changefreq>daily</changefreq></url>
+  <url><loc>https://renceblunt.github.io/poems/3xzqPCCKC9EfiV5HmQwu</loc><lastmod>2025-10-15T15:22:23.633Z</lastmod><changefreq>daily</changefreq></url>
+  <url><loc>https://renceblunt.github.io/poems/6nbPeE9ctCNIMvVRtfxz</loc><lastmod>2025-10-15T15:29:12.867Z</lastmod><changefreq>daily</changefreq></url>
+  <url><loc>https://renceblunt.github.io/poems/DhfOO00jn9kKLdonXVA6</loc><lastmod>2025-10-15T15:14:36.955Z</lastmod><changefreq>daily</changefreq></url>
   <url><loc>https://renceblunt.github.io/poems/F5KLOEVYS6pDyRY7Un4l</loc><lastmod>2025-10-15T15:20:34.155Z</lastmod><changefreq>weekly</changefreq></url>
   <url><loc>https://renceblunt.github.io/poems/GWoPBE3dc6rlgdZ3bXLA</loc><lastmod>2025-09-07T21:41:33.017Z</lastmod><changefreq>weekly</changefreq></url>
   <url><loc>https://renceblunt.github.io/poems/Hkg0GsG6M1gWgW4GtxoG</loc><lastmod>2025-10-15T15:19:52.303Z</lastmod><changefreq>weekly</changefreq></url>
@@ -110,18 +110,10 @@
 
   <!-- === IMAGES === -->
   <url>
-    <loc>https://renceblunt.github.io/images/link.jpg</loc>
-    <image:image>
-      <image:loc>https://renceblunt.github.io/images/link.jpg</image:loc>
-      <image:caption>Poetry site banner</image:caption>
-    </image:image>
-  </url>
-
-  <url>
     <loc>https://renceblunt.github.io/images/renceblunt.jpg</loc>
     <image:image>
       <image:loc>https://renceblunt.github.io/images/renceblunt.jpg</image:loc>
-      <image:caption>Poetry site banner</image:caption>
+      <image:caption>Rence Blunt</image:caption>
     </image:image>
   </url>
 
@@ -129,7 +121,7 @@
     <loc>https://renceblunt.github.io/images/logo.png</loc>
     <image:image>
       <image:loc>https://renceblunt.github.io/images/logo.png</image:loc>
-      <image:caption>Poems collection</image:caption>
+      <image:caption>Rence Blunt Poetry's Logo</image:caption>
     </image:image>
   </url>
 
