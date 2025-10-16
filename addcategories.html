@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Categories to Recent Poems</title>
+<style>
+  :root {
+    --bg: #f5f5f5;
+    --card-bg: #fff;
+    --primary: #333;
+    --accent: #444;
+    --border: #ddd;
+  }
+
+  body {
+    font-family: system-ui, Arial, sans-serif;
+    background: var(--bg);
+    margin: 0;
+    padding: 1rem;
+    color: #222;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+
+  #poemsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .poem-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .poem-card h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--primary);
+  }
+
+  .poem-card p {
+    color: #555;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  .category-badge {
+    display: inline-block;
+    background: #ececec;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 5px;
+    margin: 2px 4px 2px 0;
+    font-size: 0.8rem;
+  }
+
+  select, input {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.9rem;
+  }
+
+  button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.6rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 0.5rem;
+  }
+
+  button:hover {
+    background: var(--accent);
+  }
+
+  /* 🧠 Responsive layout */
+  @media (max-width: 600px) {
+    body {
+      padding: 0.8rem;
+    }
+
+    .poem-card {
+      padding: 0.9rem;
+    }
+
+    .poem-card h3 {
+      font-size: 1rem;
+    }
+
+    button {
+      font-size: 0.85rem;
+      padding: 0.5rem;
+    }
+  }
+</style>
+  <link rel="icon" type="png" href="images/logo.png" />
+</head>
+<body>
+
+<h1>Manage Recent Poem Categories</h1>
+<div id="poemsContainer">Loading poems...</div>
+
+<script type="module">
+import { 
+  initializeApp 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { 
+  getFirestore, collection, query, orderBy, getDocs, doc, updateDoc, arrayUnion 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// 🔥 Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ---------------------------
+// Fetch all categories first
+// ---------------------------
+async function getAllCategories() {
+  const poemsSnap = await getDocs(collection(db, "recentPoems"));
+  const catSet = new Set();
+  poemsSnap.forEach(doc => {
+    const data = doc.data();
+    if (Array.isArray(data.categories)) {
+      data.categories.forEach(c => catSet.add(c));
+    } else if (typeof data.category === "string" && data.category.trim() !== "") {
+      catSet.add(data.category.trim());
+    }
+  });
+  return Array.from(catSet).sort((a, b) => a.localeCompare(b));
+}
+
+// ---------------------------
+// Load all recent poems
+// ---------------------------
+async function loadPoems() {
+  const container = document.getElementById("poemsContainer");
+  container.innerHTML = "Loading poems...";
+
+  const allCategories = await getAllCategories();
+  const poemsQuery = query(collection(db, "recentPoems"), orderBy("timestamp", "desc"));
+  const snapshot = await getDocs(poemsQuery);
+
+  if (snapshot.empty) {
+    container.innerHTML = "<p>No poems found.</p>";
+    return;
+  }
+
+  container.innerHTML = "";
+
+  snapshot.forEach((docSnap) => {
+    const poem = docSnap.data();
+    const poemId = docSnap.id;
+    const poemDiv = document.createElement("div");
+    poemDiv.className = "poem-card";
+
+    const existingCats = Array.isArray(poem.categories) ? poem.categories : [];
+
+    // Dropdown for existing categories
+    const options = allCategories.map(c => 
+      `<option value="${c}">${c}</option>`
+    ).join("");
+
+    poemDiv.innerHTML = `
+      <h3>${poem.title || "Untitled"}</h3>
+      <p>${(poem.content || "").substring(0, 120)}...</p>
+      <div><strong>Current categories:</strong><br>
+        ${existingCats.length > 0 
+          ? existingCats.map(c => `<span class="category-badge">${c}</span>`).join("") 
+          : "<em>none</em>"}
+      </div>
+      <select id="select-${poemId}">
+        <option value="">-- Select existing category --</option>
+        ${options}
+      </select>
+      <input type="text" id="newcat-${poemId}" placeholder="Or type a new category" />
+      <button class="save-cat-btn" data-id="${poemId}">Save</button>
+    `;
+
+    container.appendChild(poemDiv);
+  });
+
+  // Add save button functionality
+  document.querySelectorAll(".save-cat-btn").forEach(btn => {
+    btn.addEventListener("click", async e => {
+      const poemId = e.target.dataset.id;
+      const selected = document.getElementById(`select-${poemId}`).value.trim();
+      const newCat = document.getElementById(`newcat-${poemId}`).value.trim();
+      const category = newCat || selected;
+
+      if (!category) {
+        alert("Select or enter a category first!");
+        return;
+      }
+
+      try {
+        const poemRef = doc(db, "recentPoems", poemId);
+        await updateDoc(poemRef, { categories: arrayUnion(category) });
+        alert(`Category '${category}' added successfully!`);
+        loadPoems();
+      } catch (err) {
+        console.error("Error updating category:", err);
+        alert("Failed to update category.");
+      }
+    });
+  });
+}
+
+loadPoems();
+</script>
+</body>
+</html>

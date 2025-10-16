@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Total Recent Poems</title>
+<style>
+  body {
+    font-family: system-ui, Arial, sans-serif;
+    background: #fafafa;
+    color: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+  }
+
+  #poemCount {
+    font-size: 2.8rem;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .loading {
+    font-size: 1.1rem;
+    color: #777;
+  }
+
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 1.3rem;
+    }
+    #poemCount {
+      font-size: 2.2rem;
+    }
+  }
+</style>
+  <link rel="icon" type="png" href="images/logo.png" />
+</head>
+<body>
+
+<h1>Total Recent Poems</h1>
+<div id="poemCount" class="loading">Loading...</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// 🔥 Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+  authDomain: "silent-depth.firebaseapp.com",
+  projectId: "silent-depth",
+  storageBucket: "silent-depth.appspot.com",
+  messagingSenderId: "78008755450",
+  appId: "1:78008755450:web:3fd0f0f298a08820935543"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Get total number of poems in recentPoems
+async function getPoemCount() {
+  const countDiv = document.getElementById("poemCount");
+  countDiv.textContent = "Loading...";
+  try {
+    const snapshot = await getDocs(collection(db, "recentPoems"));
+    countDiv.textContent = snapshot.size;
+  } catch (err) {
+    console.error("Error fetching poems:", err);
+    countDiv.textContent = "Error loading count.";
+  }
+}
+
+getPoemCount();
+</script>
+
+</body>
+</html>
