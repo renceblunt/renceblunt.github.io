@@ -155,24 +155,32 @@ async function loadRecentPoems(initial = false) {
   const truncated = truncatePoem(poem.content, 8);
   const likes = typeof poem.likes === "number" ? poem.likes : 0;
 
-  card.innerHTML = `
+card.innerHTML = `
   <h3 class="recent-poem-title">${poem.title}</h3>
-    <p class="poem-content">${truncated.preview}</p>
-    ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
-    ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
+  <p class="poem-content">${truncated.preview}</p>
 
-    <div class="poem-actions">
-      <div class="comment-section">
-        <textarea class="comment-input" placeholder="Write a comment..." rows="1"></textarea>
-        <button class="comment-btn">Post</button>
-      </div>
-      <button class="like-btn">❤️</button>
-      <span class="like-count">${likes}</span>
-      <span class="message-count">💬 0</span>
+  ${truncated.truncated ? `<button class="read-more-btn">Read More</button>` : ""}
+
+  ${poem.categories && poem.categories.length > 0
+    ? `<p class="poem-category-line"><em>${poem.categories.join(", ")}</em></p>`
+    : ""
+  }
+
+  ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
+
+  <div class="poem-actions">
+    <div class="comment-section">
+      <textarea class="comment-input" placeholder="Write a comment..." rows="1"></textarea>
+      <button class="comment-btn">Post</button>
     </div>
+    <button class="like-btn">❤️</button>
+    <span class="like-count">${likes}</span>
+    <span class="message-count">💬 0</span>
+  </div>
 
-    <div class="comment-list" style="display:none;"></div>
-  `;
+  <div class="comment-list" style="display:none;"></div>
+`;
+
 
   container.appendChild(card);
 
@@ -488,5 +496,3 @@ async function fetchCategories() {
 }
 
 fetchCategories();
-
-

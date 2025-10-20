@@ -1225,6 +1225,7 @@ font-family: 'Lato', sans-serif;
 }
 
 
+
 /* Hide by default */
 .bottom-categories {
   display: none;
@@ -1271,4 +1272,18 @@ font-family: 'Lato', sans-serif;
     background: #ffe5cc;
     color: #8B0000;
   }
+}
+
+
+.poem-category-line {
+  font-style: italic;
+  color:  #B8860B; /* 💜 choose your favorite color here */
+  margin-top: 10px;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  text-align: left;
+}
+
+.poem-category-line em {
+  color: inherit; /* keeps same color */
 }
