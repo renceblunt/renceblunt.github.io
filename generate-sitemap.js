@@ -1,3 +1,9 @@
+/**
+ * 🔥 Auto Sitemap Generator for Rence Blunt Poetry
+ * Pulls from Firestore + local files + images
+ * Outputs sitemap.xml to project root
+ */
+
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
@@ -5,7 +11,7 @@ const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 
 // ---- CONFIG ----
-const domain = 'https://renceblunt.github.io/';
+const domain = 'https://renceblunt.github.io';
 const publicFolder = './';
 const firebaseKeyPath = './serviceAccountKey.json';
 
@@ -22,7 +28,7 @@ function getImagesForFolder(folder) {
   return files.map(f => `${domain}/${folder}/${f.replace(/\\/g, '/')}`);
 }
 
-// ---- 1️⃣ Static pages ----
+// ---- Static pages ----
 function getStaticPages() {
   const files = glob.sync('*.html', { cwd: publicFolder });
   return files.map(file => {
@@ -30,29 +36,35 @@ function getStaticPages() {
     const stats = fs.statSync(filePath);
     const lastmod = stats.mtime.toISOString();
 
-    // Attach page-specific images
     const imageFolder = file === 'index.html' ? 'images/index' : `images/${file.replace('.html','')}`;
     const images = getImagesForFolder(imageFolder);
 
-    return { loc: `${domain}/${file === 'index.html' ? '' : file}`, lastmod, changefreq: 'monthly', images };
+    return {
+      loc: `${domain}/${file === 'index.html' ? '' : file}`,
+      lastmod,
+      changefreq: 'monthly',
+      images
+    };
   });
 }
 
-// ---- 2️⃣ Poems ----
+// ---- Poems ----
 async function getPoemPages() {
   const snapshot = await db.collection('recentPoems').get();
   return snapshot.docs.map(docSnap => {
     const data = docSnap.data();
     const timestamp = data.timestamp ? data.timestamp.toDate().toISOString() : new Date().toISOString();
-
-    // Images for poem
     const images = getImagesForFolder(`images/poems/${docSnap.id}`);
-
-    return { loc: `${domain}/poems/${docSnap.id}`, lastmod: timestamp, changefreq: 'weekly', images };
+    return {
+      loc: `${domain}/poems/${docSnap.id}`,
+      lastmod: timestamp,
+      changefreq: 'weekly',
+      images
+    };
   });
 }
 
-// ---- 3️⃣ Categories ----
+// ---- Categories ----
 async function getCategoryPages() {
   const snapshot = await db.collection('recentPoems').get();
   const categorySet = new Set();
@@ -66,32 +78,34 @@ async function getCategoryPages() {
     loc: `${domain}/category.html?name=${encodeURIComponent(cat)}`,
     lastmod: new Date().toISOString(),
     changefreq: 'weekly',
-    images: [] // optional category images
+    images: []
   }));
 }
 
-// ---- 4️⃣ General images in root images folder ----
+// ---- General root images ----
 function getGeneralImages() {
-  // Exclude subfolders like index/ and poems/
   const imageFiles = glob.sync('images/*.*', { cwd: publicFolder });
   return imageFiles.map(img => ({
     loc: `${domain}/images/${img.replace(/\\/g, '/')}`,
     lastmod: new Date().toISOString(),
     changefreq: 'monthly',
-    images: [] // single image as URL
+    images: []
   }));
 }
 
-// ---- 5️⃣ Generate sitemap ----
+// ---- Generate sitemap ----
 async function generateSitemap() {
-  const staticPages = getStaticPages();
-  const poemPages = await getPoemPages();
-  const categoryPages = await getCategoryPages();
-  const generalImages = getGeneralImages();
+  try {
+    console.log("🧠 Generating sitemap...");
 
-  const allUrls = [...staticPages, ...poemPages, ...categoryPages, ...generalImages];
+    const staticPages = getStaticPages();
+    const poemPages = await getPoemPages();
+    const categoryPages = await getCategoryPages();
+    const generalImages = getGeneralImages();
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+    const allUrls = [...staticPages, ...poemPages, ...categoryPages, ...generalImages];
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${allUrls.map(u => `
@@ -103,8 +117,11 @@ ${allUrls.map(u => `
   </url>`).join('')}
 </urlset>`;
 
-  fs.writeFileSync(path.join(publicFolder, 'sitemap.xml'), xml);
-  console.log('✅ sitemap.xml with all images, poems, categories, and static pages generated!');
+    fs.writeFileSync(path.join(publicFolder, 'sitemap.xml'), xml);
+    console.log('✅ sitemap.xml generated successfully!');
+  } catch (err) {
+    console.error('❌ Error generating sitemap:', err);
+  }
 }
 
 generateSitemap();

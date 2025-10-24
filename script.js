@@ -37,6 +37,30 @@ enableIndexedDbPersistence(db).catch(err => {
 let lastVisible = null;
 let reachedEnd = false;
 
+// --- Structured Data Injection for SEO ---
+function addPoemSchema(poem) {
+  // Remove previous JSON-LD (avoid duplicates)
+  document.querySelectorAll('script[type="application/ld+json"].poem-schema').forEach(el => el.remove());
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Poem",
+    "name": poem.title,
+    "author": { "@type": "Person", "name": "Rence Blunt" },
+    "publisher": { "@type": "Organization", "name": "Volate Poetry", "url": "https://renceblunt.github.io" },
+    "inLanguage": "en",
+    "url": `https://renceblunt.github.io/poems/${poem.slug || poem.title.toLowerCase().replace(/\s+/g, "-")}`,
+    "datePublished": poem.date || "2025-01-01",
+    "description": poem.description || "A poem from Volate Poetry by Rence Blunt."
+  };
+
+  const script = document.createElement("script");
+  script.type = "application/ld+json";
+  script.classList.add("poem-schema");
+  script.textContent = JSON.stringify(schema, null, 2);
+  document.head.appendChild(script);
+}
+
 // Load weekly highlights
 async function loadWeeklyHighlights() {
   try {
@@ -183,6 +207,14 @@ card.innerHTML = `
 
 
   container.appendChild(card);
+
+  // 🔍 Add structured data for SEO
+addPoemSchema({
+  title: poem.title,
+  description: poem.content ? poem.content.slice(0, 150) : "",
+  slug: poem.slug || poem.title.toLowerCase().replace(/\s+/g, "-"),
+  date: poem.timestamp ? new Date(poem.timestamp.seconds * 1000).toISOString().split("T")[0] : "",
+});
 
   // --- Set like button active if user already liked ---
   const user = auth.currentUser;
