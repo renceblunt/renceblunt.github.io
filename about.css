@@ -46,6 +46,12 @@
   
 }
 
+.about-text h2 {
+    font-size: 1.4rem;
+        text-align: center;
+  }
+  
+
 .about-image img {
   max-width: 300px;
   width: 100%;
@@ -196,6 +202,7 @@
 .dedication-container {
   max-width: 800px;
   margin: 0 auto;
+  
 }
 
 .dedication-section h2 {

@@ -199,7 +199,7 @@ body {
 }
 
 .hero .subtitle {
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   font-style: italic;
   color: #cccccc;
 }
@@ -252,7 +252,7 @@ body {
     /* Reduce logo size */
   .navbar .logo {
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
 }
@@ -1303,6 +1303,7 @@ font-family: 'Lato', sans-serif;
   top: 0; left: 0;
   width: 100%; height: 100%;
   background: url('images/logo.png') center/cover no-repeat;
+     background-size: 50% auto; /* reduce width for mobile */
   opacity: 0.15;
   z-index: 0;
 }
@@ -1310,14 +1311,13 @@ font-family: 'Lato', sans-serif;
 /* Fix stretch on small screens */
 @media (max-width: 768px) {
   .hero::before {
-    background-size: 90% auto; /* reduce width for mobile */
+    background-size: 80% auto; /* reduce width for mobile */
   }
 }
 
 .hero p {
   position: relative;
   z-index: 1;
-  font-size: 1.1rem;
   max-width: 650px;
   margin: 0 auto;
   opacity: 0.9;
