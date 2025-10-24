@@ -1,39 +1,38 @@
-name: 🔄 Generate Sitemap
+name: 🔥 Auto Sitemap Generator
 
 on:
+  workflow_dispatch: # Allows manual trigger
   push:
     branches:
-      - main
-  schedule:
-    - cron: "0 0 * * 1"  # every Monday at midnight UTC
-  workflow_dispatch:
+      - main  # or 'master' if your default branch is master
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install glob firebase-admin
+        run: npm install
 
-      - name: Add Firebase credentials
-        run: echo '${{ secrets.FIREBASE_KEY }}' > serviceAccountKey.json
+      - name: Create Firebase key file from GitHub secret
+        run: |
+          echo "$FIREBASE_KEY" > serviceAccountKey.json
 
-      - name: Generate sitemap
+      - name: Run sitemap generator
         run: node generate-sitemap.js
 
-      - name: Commit and push sitemap
+      - name: Commit & push sitemap.xml
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add sitemap.xml
-          git commit -m "🔄 Auto-update sitemap"
+          git commit -m "🗺️ Auto-update sitemap"
           git push
