@@ -454,7 +454,9 @@ if (e.target.classList.contains("comment-btn")) {
   }
 });
 
+
 // Initialize DOM
+// --- 🔍 Combined Search: Local + Firestore (with in-place "Read More") ---
 document.addEventListener("DOMContentLoaded", () => {
   loadWeeklyHighlights();
   loadRecentPoems(true);
@@ -466,14 +468,106 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const searchInput = document.getElementById("recent-poems-search");
   const container = document.getElementById("recent-poems-container");
-  searchInput.addEventListener("input", () => {
-    const q = searchInput.value.toLowerCase();
+
+  searchInput.addEventListener("input", async () => {
+    const q = searchInput.value.trim().toLowerCase();
+
+    // Remove Firestore results from previous search
+    container.querySelectorAll(".firestore-result").forEach(e => e.remove());
+
+    // If search is empty → show all local poems again
+    if (!q) {
+      container.querySelectorAll(".recent-poem-card").forEach(card => card.style.display = "block");
+      return;
+    }
+
+    // 1️⃣ Filter locally loaded poems
+    const localTitles = [];
     container.querySelectorAll(".recent-poem-card").forEach(card => {
-      const title = card.querySelector("h3").textContent.toLowerCase();
-      const content = card.querySelector("p.poem-content").textContent.toLowerCase();
-      card.style.display = (title.includes(q) || content.includes(q)) ? "block" : "none";
+      const title = card.querySelector("h3")?.textContent.toLowerCase() || "";
+      const content = card.querySelector(".poem-content")?.textContent.toLowerCase() || "";
+      const visible = title.includes(q) || content.includes(q);
+      card.style.display = visible ? "block" : "none";
+      if (visible) localTitles.push(title);
     });
+
+    // 2️⃣ Fetch matches from Firestore too
+    try {
+      const snapshot = await getDocs(collection(db, "recentPoems"));
+      const matches = [];
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const title = (data.title || "").toLowerCase();
+        const content = (data.content || "").toLowerCase();
+
+        if ((title.includes(q) || content.includes(q)) && !localTitles.includes(title)) {
+          matches.push({ id: doc.id, ...data });
+        }
+      });
+
+      // 3️⃣ Add Firestore results below local ones
+      matches.forEach(poem => {
+        const card = document.createElement("div");
+        card.className = "recent-poem-card firestore-result";
+
+        const fullContent = (poem.content || "").replace(/\n/g, "<br>");
+        const shortContent = fullContent.split("<br>").slice(0, 6).join("<br>");
+        const hasMore = fullContent.split("<br>").length > 6;
+
+        card.innerHTML = `
+          <h3 class="recent-poem-title">${poem.title}</h3>
+          <p class="poem-content">${hasMore ? shortContent + "..." : fullContent}</p>
+          ${poem.categories ? `<p class="poem-category-line"><em>${poem.categories.join(", ")}</em></p>` : ""}
+          ${poem.author ? `<span class="author">– ${poem.author}</span>` : ""}
+          ${hasMore ? `<button class="read-more-btn">Read More</button>` : ""}
+        `;
+
+        // 🔽 Add expand/collapse behavior
+        if (hasMore) {
+          const btn = card.querySelector(".read-more-btn");
+          const contentElem = card.querySelector(".poem-content");
+          let expanded = false;
+
+          btn.addEventListener("click", () => {
+            expanded = !expanded;
+            contentElem.innerHTML = expanded ? fullContent : shortContent + "...";
+            btn.textContent = expanded ? "Show Less" : "Read More";
+          });
+        }
+
+        container.appendChild(card);
+      });
+    } catch (err) {
+      console.error("Error searching Firestore:", err);
+    }
   });
+});
+
+
+// --- 🔢 Recent Poems Count ---
+let allPoemsCache = [];
+
+async function updateRecentPoemCount() {
+  const titleEl = document.getElementById("recent-poems-title");
+  if (titleEl) titleEl.textContent = `Recent Poems (${allPoemsCache.length})`;
+}
+
+async function fetchRecentPoemCount() {
+  try {
+    const snapshot = await getDocs(collection(db, "recentPoems"));
+    allPoemsCache = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    updateRecentPoemCount();
+  } catch (err) {
+    console.error("Error fetching poem count:", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  fetchRecentPoemCount();
 });
 
 async function fetchCategories() {
