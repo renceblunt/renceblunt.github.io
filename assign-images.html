@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assign Images | Volant Poetry</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: #f7f6f3;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 60px;
+      color: #4b3f2f;
+    }
+    .assign-container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    .poem-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      gap: 10px;
+    }
+    .poem-item:last-child {
+      border-bottom: none;
+    }
+    .poem-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex: 1 1 auto;
+    }
+    .poem-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #f1f1f1;
+    }
+    select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 0.9rem;
+      min-width: 150px;
+    }
+    button {
+      background: #4b3f2f;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #6a5945;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Assign Images to Poems</h1>
+  <div class="assign-container" id="assign-container">
+    <p>Loading poems...</p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4DHI8aBVY4JjTvJ-r-TGIDPsewtEWxzU",
+      authDomain: "silent-depth.firebaseapp.com",
+      projectId: "silent-depth",
+      storageBucket: "silent-depth.appspot.com",
+      messagingSenderId: "78008755450",
+      appId: "1:78008755450:web:3fd0f0f298a08820935543"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const container = document.getElementById("assign-container");
+
+    function getImageUrl(path) {
+      if (!path) return "images/link.jpg";
+      if (path.startsWith("http://") || path.startsWith("https://")) return path;
+      return `https://volantpoetry.github.io/${path}`;
+    }
+
+    // ✅ Add more image names here as needed
+    const availableImages = [
+      "images/link.jpg",
+      "images/moon.jpg",
+      "images/rose.jpg",
+      "images/night.jpg",
+      "images/ink.jpg",
+      "images/sad.jpg"
+    ];
+
+    async function loadPoems() {
+      const snap = await getDocs(collection(db, "recentPoems"));
+      container.innerHTML = "";
+
+      snap.forEach(docSnap => {
+        const poem = { id: docSnap.id, ...docSnap.data() };
+        const item = document.createElement("div");
+        item.className = "poem-item";
+
+        const info = document.createElement("div");
+        info.className = "poem-info";
+
+        const img = document.createElement("img");
+        img.src = getImageUrl(poem.image);
+        img.alt = poem.title;
+
+        const title = document.createElement("div");
+        title.textContent = poem.title || "(untitled)";
+
+        info.appendChild(img);
+        info.appendChild(title);
+        item.appendChild(info);
+
+        // Dropdown for selecting image
+        const select = document.createElement("select");
+        availableImages.forEach(src => {
+          const opt = document.createElement("option");
+          opt.value = src;
+          opt.textContent = src.split("/").pop();
+          if (poem.image && poem.image.includes(src.split("/").pop())) {
+            opt.selected = true;
+          }
+          select.appendChild(opt);
+        });
+
+        const updateBtn = document.createElement("button");
+        updateBtn.textContent = "Save";
+        updateBtn.onclick = async () => {
+          const newPath = select.value.trim();
+          await updateDoc(doc(db, "recentPoems", poem.id), { image: newPath });
+          img.src = getImageUrl(newPath);
+          alert(`✅ Image updated for "${poem.title}"`);
+        };
+
+        item.appendChild(select);
+        item.appendChild(updateBtn);
+        container.appendChild(item);
+      });
+    }
+
+    loadPoems().catch(err => {
+      container.innerHTML = `<p style="color:red;">Error loading poems: ${err.message}</p>`;
+    });
+  </script>
+
+</body>
+</html>
