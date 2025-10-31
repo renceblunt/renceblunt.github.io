@@ -2,282 +2,61 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 
-  <url>
-    <loc>https://volantpoetry.github.io/poemslink.html</loc>
-    <lastmod>2025-10-23T19:55:01.847Z</lastmod>
-    <changefreq>monthly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems.html</loc>
-    <lastmod>2025-10-23T20:35:30.426Z</lastmod>
-    <changefreq>monthly</changefreq>
-    
-  </url>
- 
+  <!-- Homepage -->
   <url>
     <loc>https://volantpoetry.github.io/</loc>
     <lastmod>2025-10-24T19:15:22.648Z</lastmod>
     <changefreq>monthly</changefreq>
-    
   </url>
+
+  <!-- Static pages -->
+  <url>
+    <loc>https://volantpoetry.github.io/poems.html</loc>
+    <lastmod>2025-10-23T20:35:30.426Z</lastmod>
+    <changefreq>monthly</changefreq>
+  </url>
+
   <url>
     <loc>https://volantpoetry.github.io/contact.html</loc>
     <lastmod>2025-10-24T01:39:57.367Z</lastmod>
     <changefreq>monthly</changefreq>
-    
   </url>
-  <url>
-    <loc>https://volantpoetry.github.io/category.html</loc>
-    <lastmod>2025-10-24T13:42:49.803Z</lastmod>
-    <changefreq>monthly</changefreq>
-    
-  </url>
- 
+
   <url>
     <loc>https://volantpoetry.github.io/about.html</loc>
     <lastmod>2025-10-24T13:58:31.939Z</lastmod>
     <changefreq>monthly</changefreq>
-    
   </url>
+
   <url>
-    <loc>https://volantpoetry.github.io/poems/0HGWuepjUsGumvCPp0Qt</loc>
-    <lastmod>2025-10-15T15:26:11.237Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
+    <loc>https://volantpoetry.github.io/category.html</loc>
+    <lastmod>2025-10-24T13:42:49.803Z</lastmod>
+    <changefreq>monthly</changefreq>
   </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/213g6aJGdB99JcEOnEZU</loc>
-    <lastmod>2025-10-15T15:25:36.823Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/3WpBWXTNFi0Nq0suqeDc</loc>
-    <lastmod>2025-10-15T15:35:26.776Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/3xzqPCCKC9EfiV5HmQwu</loc>
-    <lastmod>2025-10-15T15:22:23.633Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/6nbPeE9ctCNIMvVRtfxz</loc>
-    <lastmod>2025-10-15T15:29:12.867Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/DhfOO00jn9kKLdonXVA6</loc>
-    <lastmod>2025-10-15T15:14:36.955Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/F5KLOEVYS6pDyRY7Un4l</loc>
-    <lastmod>2025-10-15T15:20:34.155Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/GWoPBE3dc6rlgdZ3bXLA</loc>
-    <lastmod>2025-09-07T21:41:33.017Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/Hkg0GsG6M1gWgW4GtxoG</loc>
-    <lastmod>2025-10-15T15:19:52.303Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/I1uzUy8jZv499Y1R4WxR</loc>
-    <lastmod>2025-10-15T15:38:36.181Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/JYgtgprbNbcfRF8W6V5o</loc>
-    <lastmod>2025-10-15T15:29:59.110Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/KxCmX7bi8sV0jhbmOQ5y</loc>
-    <lastmod>2025-10-15T15:30:29.181Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/LqxG3VMWc7WWAmkIURAe</loc>
-    <lastmod>2025-08-30T18:06:20.638Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/MKGZZJT3t4dBGdtEun6v</loc>
-    <lastmod>2025-10-15T15:36:33.670Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/MlwQwMzMvK9n3mRZpDkC</loc>
-    <lastmod>2025-10-15T15:28:44.160Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/PR3uSPrFPjaF69muE1pt</loc>
-    <lastmod>2025-10-15T15:21:40.569Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/RE23xASqVU9OL7l5VXfI</loc>
-    <lastmod>2025-08-28T15:04:36.733Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/V2j2HbX7g4qzdqMvMjg6</loc>
-    <lastmod>2025-10-15T15:25:02.320Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/X1J5kXGXmyl14YUqyp8y</loc>
-    <lastmod>2025-10-15T15:15:23.035Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/XEhsYAYJidtupNZp6pRq</loc>
-    <lastmod>2025-10-15T15:28:04.977Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/Y57ncJYCdtvKQbdyEqMr</loc>
-    <lastmod>2025-10-15T15:15:58.439Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/Y7KjZOJWxcdMh1ZtYbo3</loc>
-    <lastmod>2025-10-15T15:17:37.859Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/ZZEVe7JojxRT3ROnJfOY</loc>
-    <lastmod>2025-10-15T15:30:59.042Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/amDKir1b4nW10EYTsRtG</loc>
-    <lastmod>2025-10-15T15:37:08.266Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/bPRrjPBC1HmaSB6wprZH</loc>
-    <lastmod>2025-10-15T15:27:21.066Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/gftjpZ15ZhGtDbdetd0a</loc>
-    <lastmod>2025-10-15T15:16:56.708Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/ghO23LAbz9o4IiVgQiAe</loc>
-    <lastmod>2025-10-15T15:22:48.974Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/hsULhr9Syg9db8Pw0oql</loc>
-    <lastmod>2025-10-15T15:34:29.602Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/iG3tl4SJKiYdf42VLFsy</loc>
-    <lastmod>2025-10-15T15:36:03.854Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/kSlBlR6kCfnhaMu3n9Wj</loc>
-    <lastmod>2025-10-15T15:32:50.022Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/l2jxRlqDCx2424kC3Kir</loc>
-    <lastmod>2025-10-15T15:26:46.616Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/uaacLFmF3m7xiPNGrLuB</loc>
-    <lastmod>2025-10-15T15:21:05.097Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/v1zvE96aymRfyb0Gu4Xp</loc>
-    <lastmod>2025-10-15T15:31:35.957Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/y2OlhsOuoAynadA9CWXg</loc>
-    <lastmod>2025-10-20T16:05:11.155Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/yi4iKna76GGeBAAznQWA</loc>
-    <lastmod>2025-10-15T15:18:19.964Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
-  <url>
-    <loc>https://volantpoetry.github.io/poems/zMyvMWIthWmKpOSRr5YW</loc>
-    <lastmod>2025-10-15T15:39:11.153Z</lastmod>
-    <changefreq>weekly</changefreq>
-    
-  </url>
+
+  <!-- Images -->
   <url>
     <loc>https://volantpoetry.github.io/images/renceblunt.jpg</loc>
     <lastmod>2025-10-24T19:29:07.657Z</lastmod>
     <changefreq>monthly</changefreq>
-    
   </url>
+
   <url>
     <loc>https://volantpoetry.github.io/images/logo.png</loc>
     <lastmod>2025-10-24T19:29:07.657Z</lastmod>
     <changefreq>monthly</changefreq>
-    
   </url>
+
   <url>
     <loc>https://volantpoetry.github.io/images/LOGO R.jpg</loc>
     <lastmod>2025-10-24T19:29:07.657Z</lastmod>
     <changefreq>monthly</changefreq>
-    
   </url>
+
   <url>
     <loc>https://volantpoetry.github.io/images/link.jpg</loc>
     <lastmod>2025-10-24T19:29:07.657Z</lastmod>
     <changefreq>monthly</changefreq>
-    
   </url>
+
 </urlset>
